@@ -17,6 +17,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 public class Main extends Activity {
 
@@ -41,11 +42,22 @@ public class Main extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				btnLogin.setVisibility(View.INVISIBLE);
-				txtStudNo.setVisibility(View.INVISIBLE);
-				txtPassword.setVisibility(View.INVISIBLE);
-				
-				pb1.setVisibility(View.VISIBLE);
+				String studNo = txtStudNo.getText().toString().trim();
+				String password = txtPassword.getText().toString();
+						
+				//check if student number edittext is empty
+				if(studNo.equals("")) {
+					Toast.makeText(Main.this, "Please provide your Adamson University Student Number", Toast.LENGTH_SHORT).show();
+				} else if(password.equals("")) { //else if password is empty
+					Toast.makeText(Main.this, "Please provide your E-Learning password", Toast.LENGTH_SHORT).show();
+				} else { //ready to send login details
+					//set visibilities
+					btnLogin.setVisibility(View.INVISIBLE);
+					txtStudNo.setVisibility(View.INVISIBLE);
+					txtPassword.setVisibility(View.INVISIBLE);
+					
+					pb1.setVisibility(View.VISIBLE);	
+				}
 			}
 		});
 	}
