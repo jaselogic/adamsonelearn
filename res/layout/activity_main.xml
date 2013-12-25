@@ -9,48 +9,62 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".Main" >
 
-    <LinearLayout
-        android:id="@+id/linearLayout1"
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:orientation="vertical" >
+        android:layout_centerVertical="true" >
 
         <ImageView
             android:id="@+id/imageView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="20dp"
             android:src="@drawable/logo"
-            android:layout_gravity="center_horizontal"
-            android:contentDescription="@string/content_description" />
+            android:contentDescription="@string/logo_description" />
 
         <EditText
             android:id="@+id/editText1"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="number"
-            android:hint="@string/studno" >
+            android:layout_below="@+id/imageView1"
+            android:layout_centerHorizontal="true"
+            android:hint="@string/studno"
+            android:layout_marginBottom="10dp"
+            android:inputType="number" >
 
             <requestFocus />
         </EditText>
 
         <EditText
             android:id="@+id/editText2"
-            android:layout_marginBottom="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPassword"
-            android:hint="@string/password" />
+            android:layout_below="@+id/editText1"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="10dp"
+            android:hint="@string/password"
+            android:inputType="textPassword" />
 
         <Button
             android:id="@+id/button1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/login"  />
+            android:layout_below="@+id/editText2"
+            android:layout_centerHorizontal="true"
+            android:text="@string/login" />
 
-    </LinearLayout>
+        <ProgressBar
+            android:id="@+id/progressBar1"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/editText1"
+            android:layout_centerHorizontal="true"
+            android:visibility="invisible" />
 
+    </RelativeLayout>
 </RelativeLayout>
