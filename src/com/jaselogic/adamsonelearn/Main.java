@@ -98,7 +98,11 @@ public class Main extends Activity {
 		
 		protected void onPostExecute(Document result) {
 			Intent intent = new Intent(Main.this, Access.class);
-			intent.putExtra("outerHTML", result.outerHtml());
+			String avatarSrc = result.select("img.avatar").get(0).attr("src");
+			avatarSrc = "http://learn.adamson.edu.ph/" + avatarSrc.substring(3,
+					(avatarSrc.indexOf('#') > 0 ? avatarSrc.indexOf('#') : avatarSrc.length()));
+			
+			intent.putExtra("outerHTML", avatarSrc);
 			startActivity(intent);
 		}
 		
