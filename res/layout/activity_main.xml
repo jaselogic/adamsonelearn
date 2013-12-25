@@ -27,33 +27,33 @@
             android:contentDescription="@string/logo_description" />
 
         <EditText
-            android:id="@+id/editText1"
+            android:id="@+id/txt_studno"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/imageView1"
             android:layout_centerHorizontal="true"
-            android:hint="@string/studno"
             android:layout_marginBottom="10dp"
+            android:hint="@string/studno"
             android:inputType="number" >
 
             <requestFocus />
         </EditText>
 
         <EditText
-            android:id="@+id/editText2"
+            android:id="@+id/txt_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/editText1"
+            android:layout_below="@+id/txt_studno"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="10dp"
             android:hint="@string/password"
             android:inputType="textPassword" />
 
         <Button
-            android:id="@+id/button1"
+            android:id="@+id/btn_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/editText2"
+            android:layout_below="@+id/txt_password"
             android:layout_centerHorizontal="true"
             android:text="@string/login" />
 
@@ -62,7 +62,7 @@
             style="?android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/editText1"
+            android:layout_alignTop="@+id/txt_studno"
             android:layout_centerHorizontal="true"
             android:visibility="invisible" />
 
