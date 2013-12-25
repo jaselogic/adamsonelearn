@@ -72,13 +72,13 @@ public class Main extends Activity {
 	private class DownloadDocumentTask extends AsyncTask<String, Void, Document> {
 
 		@Override
-		protected Document doInBackground(String... arg0) {
+		protected Document doInBackground(String... details) {
 			// TODO Auto-generated method stub
 	        Document doc = null;
 	        Response res = null;
 	        try {                                              
 	            res = Jsoup.connect("http://learn.adamson.edu.ph/V4/")
-	            		.data("TXTusername", "201013888", "TXTpassword", "288785", "BTNlogin", "Login")
+	            		.data("TXTusername", details[0], "TXTpassword", details[1], "BTNlogin", "Login")
 	            		.method(Method.POST)
 	            		.execute();
 	            Map<String, String> loginCookies = res.cookies();
