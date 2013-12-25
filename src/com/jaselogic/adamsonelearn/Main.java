@@ -7,6 +7,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.Connection.Method;
 import org.jsoup.Connection.Response;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -86,7 +87,7 @@ public class Main extends Activity {
 	            		.execute();
 	            Map<String, String> loginCookies = res.cookies();
 	            
-	            doc = Jsoup.connect("http://learn.adamson.edu.ph/V4/?page=welcome")
+	            doc = Jsoup.connect("http://learn.adamson.edu.ph/V4/?page=balinq")
 	            		.cookies(loginCookies)
 	            		.get();
 	        } catch (IOException e) {                          
@@ -99,10 +100,15 @@ public class Main extends Activity {
 		protected void onPostExecute(Document result) {
 			Intent intent = new Intent(Main.this, Access.class);
 			String avatarSrc = result.select("img.avatar").get(0).attr("src");
+			Elements studinfo = result.select("div.studinfo");
 			avatarSrc = "http://learn.adamson.edu.ph/" + avatarSrc.substring(3,
 					(avatarSrc.indexOf('#') > 0 ? avatarSrc.indexOf('#') : avatarSrc.length()));
 			
-			intent.putExtra("outerHTML", avatarSrc);
+			intent.putExtra("avatarSrc", avatarSrc);
+			intent.putExtra("name", studinfo.get(0).text());
+			intent.putExtra("studNo", studinfo.get(1).text());
+			intent.putExtra("course", studinfo.get(2).text());
+			intent.putExtra("year", studinfo.get(3).text());
 			startActivity(intent);
 		}
 		
