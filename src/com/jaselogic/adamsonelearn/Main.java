@@ -11,6 +11,7 @@ import org.jsoup.nodes.Document;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Intent;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -56,7 +57,9 @@ public class Main extends Activity {
 					txtStudNo.setVisibility(View.INVISIBLE);
 					txtPassword.setVisibility(View.INVISIBLE);
 					
-					pb1.setVisibility(View.VISIBLE);	
+					pb1.setVisibility(View.VISIBLE);
+					
+					new DownloadDocumentTask().execute(studNo, password);
 				}
 			}
 		});
@@ -94,7 +97,9 @@ public class Main extends Activity {
 		}
 		
 		protected void onPostExecute(Document result) {
-
+			Intent intent = new Intent(Main.this, Access.class);
+			intent.putExtra("outerHTML", result.outerHtml());
+			startActivity(intent);
 		}
 		
 	}
