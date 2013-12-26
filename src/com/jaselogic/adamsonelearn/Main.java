@@ -98,7 +98,8 @@ public class Main extends Activity {
 		}
 		
 		protected void onPostExecute(Document result) {
-			Intent intent = new Intent(Main.this, Access.class);
+			Intent intent = new Intent(Main.this, Dashboard.class);
+			//changed to dashboard class
 			String avatarSrc = result.select("img.avatar").get(0).attr("src");
 			Elements studinfo = result.select("div.studinfo");
 			avatarSrc = "http://learn.adamson.edu.ph/" + avatarSrc.substring(3,

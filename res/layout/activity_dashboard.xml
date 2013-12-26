@@ -5,13 +5,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     
-    <!-- Main content view -->
+    <!-- Main content view 
+    Must be first child because XML order implies z-ordering
+    -->
     <FrameLayout
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
     
-    <!-- Navigation drawer -->
+    <!-- Navigation drawer 
+    layout_gravity set to start to automatically
+    adjust drawer for RTL layouts
+    -->
     <ListView android:id="@+id/left_drawer"
         android:layout_width="240dp"
         android:layout_height="match_parent"
