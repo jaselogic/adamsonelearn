@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.TreeSet;
 
 import com.jaselogic.adamsonelearn.DrawerListItem.ItemType;
+import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -90,9 +91,10 @@ class DrawerListAdapter extends BaseAdapter {
 	
     private ArrayList<DrawerListItem> mListItems;
     private LayoutInflater mLayoutInflater;
+    private String avatarSrc;
  
-    public DrawerListAdapter(Context context, ArrayList<DrawerListItem> arrayList){
- 
+    public DrawerListAdapter(Context context, ArrayList<DrawerListItem> arrayList, String imgSrc){
+    	avatarSrc = imgSrc;
         mListItems = arrayList;
         //get the layout inflater
         mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -151,6 +153,9 @@ class DrawerListAdapter extends BaseAdapter {
             		holder.itemName = (TextView) view.findViewById(R.id.item_separator_text);
             		break;
             	case NAME:
+            		view = mLayoutInflater.inflate(R.layout.studinfo, viewGroup, false);
+            		holder.itemName = (TextView) view.findViewById(R.id.studinfo_name);
+            		holder.iconImageView = (ImageView) view.findViewById(R.id.studinfo_avatar);
             		break;
             }
  
@@ -167,7 +172,14 @@ class DrawerListAdapter extends BaseAdapter {
                 holder.itemName.setText(listItem.label);
             }
             if (holder.iconImageView != null) {
-            	holder.iconImageView.setImageResource(listItem.imageResource);
+            	switch (listItem.itemType) {
+            		case NAME:
+            			UrlImageViewHelper.setUrlDrawable(holder.iconImageView, avatarSrc);
+            			break;
+            		case SIMPLE:
+            			holder.iconImageView.setImageResource(listItem.imageResource);
+            			break;
+            	}
             }
         }
  
