@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="icons_array">
+        <item>@drawable/ic_home</item>
+        <item>@drawable/ic_curriculum</item>
+        <item>@drawable/ic_grades</item>
+        <item>@drawable/ic_balance</item>
+        <item>@drawable/ic_announcement</item>
+        <item>@drawable/ic_lecture</item>
+        <item>@drawable/ic_about</item>
+        <item>@drawable/ic_logout</item>
+    </array>
+</resources>
