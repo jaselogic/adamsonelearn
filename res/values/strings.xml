@@ -8,5 +8,7 @@
     <string name="studno">Student Number</string>
     <string name="password">Password</string>
     <string name="logo_description">Adamson University E-Learning</string>
+    <string name="drawer_open">Open Drawer</string>
+    <string name="drawer_close">Close Drawer</string>
 
 </resources>
