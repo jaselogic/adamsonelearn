@@ -41,7 +41,6 @@ public class Dashboard extends ActionBarActivity {
 		layoutDashboard = (DrawerLayout) findViewById(R.id.drawerlayout_dashboard);
 		lvDrawer = (ListView) findViewById(R.id.drawerlistview_dashboard);
 		
-		ArrayList<String> list = new ArrayList<String>();
 		ArrayList<DrawerListItem> drawerItemList = new ArrayList<DrawerListItem>();
 		String[] itemsArray = getResources().getStringArray(R.array.drawer_items_array);
 		TypedArray icons = getResources().obtainTypedArray(R.array.icons_array);
