@@ -60,7 +60,9 @@ public class Main extends Activity {
 					
 					pb1.setVisibility(View.VISIBLE);
 					
-					new DownloadDocumentTask().execute(studNo, password);
+					//new DownloadDocumentTask().execute(studNo, password);
+					//temporary
+					startActivity(new Intent(Main.this, Dashboard.class));
 				}
 			}
 		});
