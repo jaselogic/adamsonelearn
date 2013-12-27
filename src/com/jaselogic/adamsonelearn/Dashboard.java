@@ -45,9 +45,15 @@ public class Dashboard extends ActionBarActivity {
 
         for (int i = 0, j = 0; i < itemsArray.length; i++){
         	DrawerListItem item = new DrawerListItem();
-        	item.label = itemsArray[i];
         	item.imageResource = icons.getResourceId(j, 0);
-        	if(itemsArray[i].charAt(0) != '*') j++; 
+        	if(itemsArray[i].charAt(0) != '*') {
+        		item.label = itemsArray[i];
+        		item.itemType = DrawerListItem.ItemType.SIMPLE;
+        		j++; 
+        	} else {
+        		item.label = itemsArray[i].substring(1).toUpperCase();
+        		item.itemType = DrawerListItem.ItemType.SEPARATOR;
+        	}
             drawerItemList.add(item);
         }
 		

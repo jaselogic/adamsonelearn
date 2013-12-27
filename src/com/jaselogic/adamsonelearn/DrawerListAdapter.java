@@ -3,6 +3,8 @@ package com.jaselogic.adamsonelearn;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
+import com.jaselogic.adamsonelearn.DrawerListItem.ItemType;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -95,6 +97,17 @@ class DrawerListAdapter extends BaseAdapter {
         //get the layout inflater
         mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
+    
+    @Override
+    public int getItemViewType(int position) {
+    	// TODO Auto-generated method stub
+    	return mListItems.get(position).itemType.ordinal();
+    }
+    
+    @Override
+    public int getViewTypeCount() {
+    	return 3;
+    }
  
     @Override
     public int getCount() {
@@ -121,14 +134,25 @@ class DrawerListAdapter extends BaseAdapter {
  
         // create a ViewHolder reference
         ViewHolder holder;
- 
+        //get the string item from the position "position" from array list to put it on the TextView
+        DrawerListItem listItem = mListItems.get(position);
+        
         //check to see if the reused view is null or not, if is not null then reuse it
         if (view == null) {
             holder = new ViewHolder();
- 
-            view = mLayoutInflater.inflate(R.layout.item, viewGroup, false);
-            holder.itemName = (TextView) view.findViewById(R.id.item_text);
-            holder.iconImageView = (ImageView) view.findViewById(R.id.icon_imageview);
+            switch(listItem.itemType) {
+            	case SIMPLE:
+            		view = mLayoutInflater.inflate(R.layout.item, viewGroup, false);
+                    holder.itemName = (TextView) view.findViewById(R.id.item_text);
+                    holder.iconImageView = (ImageView) view.findViewById(R.id.icon_imageview);
+            		break;
+            	case SEPARATOR:
+            		view = mLayoutInflater.inflate(R.layout.separator, viewGroup, false);
+            		holder.itemName = (TextView) view.findViewById(R.id.item_separator_text);
+            		break;
+            	case NAME:
+            		break;
+            }
  
             // the setTag is used to store the data within this view
             view.setTag(holder);
@@ -137,8 +161,6 @@ class DrawerListAdapter extends BaseAdapter {
             holder = (ViewHolder)view.getTag();
         }
  
-        //get the string item from the position "position" from array list to put it on the TextView
-        DrawerListItem listItem = mListItems.get(position);
         if (listItem != null) {
             if (holder.itemName != null) {
                 //set the item name on the TextView
