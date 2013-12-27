@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 class DrawerListAdapter extends BaseAdapter {
@@ -85,13 +86,12 @@ class DrawerListAdapter extends BaseAdapter {
 	}
 	*/
 	
-    private ArrayList<String> mListItems;
+    private ArrayList<DrawerListItem> mListItems;
     private LayoutInflater mLayoutInflater;
  
-    public DrawerListAdapter(Context context, ArrayList<String> arrayList){
+    public DrawerListAdapter(Context context, ArrayList<DrawerListItem> arrayList){
  
         mListItems = arrayList;
- 
         //get the layout inflater
         mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -128,6 +128,7 @@ class DrawerListAdapter extends BaseAdapter {
  
             view = mLayoutInflater.inflate(R.layout.item, viewGroup, false);
             holder.itemName = (TextView) view.findViewById(R.id.item_text);
+            holder.iconImageView = (ImageView) view.findViewById(R.id.icon_imageview);
  
             // the setTag is used to store the data within this view
             view.setTag(holder);
@@ -137,11 +138,14 @@ class DrawerListAdapter extends BaseAdapter {
         }
  
         //get the string item from the position "position" from array list to put it on the TextView
-        String stringItem = mListItems.get(position);
-        if (stringItem != null) {
+        DrawerListItem listItem = mListItems.get(position);
+        if (listItem != null) {
             if (holder.itemName != null) {
                 //set the item name on the TextView
-                holder.itemName.setText(stringItem);
+                holder.itemName.setText(listItem.label);
+            }
+            if (holder.iconImageView != null) {
+            	holder.iconImageView.setImageResource(listItem.imageResource);
             }
         }
  
@@ -153,6 +157,7 @@ class DrawerListAdapter extends BaseAdapter {
 	//static class view holder to prevent repeated calls to findViewById
 	private static class ViewHolder {
 		protected TextView itemName;
+		protected ImageView iconImageView;
 	}
 
 }

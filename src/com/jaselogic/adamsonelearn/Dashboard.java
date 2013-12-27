@@ -3,6 +3,7 @@ package com.jaselogic.adamsonelearn;
 import java.util.ArrayList;
 
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
@@ -38,14 +39,20 @@ public class Dashboard extends ActionBarActivity {
 		lvDrawer = (ListView) findViewById(R.id.drawerlistview_dashboard);
 		
 		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<DrawerListItem> drawerItemList = new ArrayList<DrawerListItem>();
+		String[] itemsArray = getResources().getStringArray(R.array.drawer_items_array);
+		TypedArray icons = getResources().obtainTypedArray(R.array.icons_array);
 
-        //for simplicity we will add the same name for 20 times to populate the list view
-        for (int i = 0; i < 20; i++){
-            list.add("Diana" + i);
+        for (int i = 0, j = 0; i < itemsArray.length; i++){
+        	DrawerListItem item = new DrawerListItem();
+        	item.label = itemsArray[i];
+        	item.imageResource = icons.getResourceId(j, 0);
+        	if(itemsArray[i].charAt(0) != '*') j++; 
+            drawerItemList.add(item);
         }
 		
 		//Create new drawer list adapter
-		drawerListAdapter = new DrawerListAdapter(Dashboard.this, list);
+		drawerListAdapter = new DrawerListAdapter(Dashboard.this, drawerItemList);
         /*for (int i = 1; i < 50; i++) {
             drawerListAdapter.addItem("item " + i);
             if (i % 4 == 0) {
