@@ -8,6 +8,8 @@ import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -96,6 +98,10 @@ public class Dashboard extends ActionBarActivity {
             }
         };
         layoutDashboard.setDrawerListener(drawerToggle);
+        
+        //Display home page
+        //TODO: Check this on save instance state
+        displayPage(Page.HOME);
 	}
 	
 	//called via supportInvalidateOptionsMenu
@@ -128,6 +134,7 @@ public class Dashboard extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 	
+	//Word caps case for all caps name
 	private String setWordCaps(String input) {
 		StringBuffer buf = new StringBuffer();
 	    Matcher m = Pattern.compile("([a-z])([a-z]*)",
@@ -137,5 +144,29 @@ public class Dashboard extends ActionBarActivity {
 			m.group(1).toUpperCase() + m.group(2).toLowerCase());
 	    }
 	    return m.appendTail(buf).toString();
+	}
+	
+	//displays page fragment
+	private void displayPage(Page p) {
+		Fragment fragment = null;
+		switch(p) {
+			case HOME:
+				fragment = new HomeFragment();
+				break;
+		}
+		
+		// Insert fragment to content frame
+		FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment)
+        .addToBackStack(null).commit();
+        
+        // Set item checked in drawer, then close drawer
+        lvDrawer.setItemChecked(p.ordinal() + 1, true);
+        layoutDashboard.closeDrawer(lvDrawer);
+	}
+	
+	//pages enumeration
+	private enum Page {
+		HOME
 	}
 }
