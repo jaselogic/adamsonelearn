@@ -1,5 +1,7 @@
 package com.jaselogic.adamsonelearn;
 
+import com.viewpagerindicator.TabPageIndicator;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,7 +14,13 @@ import android.view.ViewGroup;
 
 class HomeFragment extends Fragment {
 	
-	private static final int NUM_PAGES = 5;
+	private static final int NUM_PAGES = 3;
+	private static final String[] STR_TITLES = new String[] {
+		"Tab 1",
+		"Tab 2",
+		"Tab 3"
+	};
+	
 	//pager view
 	private ViewPager mPager;
 	//pager adapter
@@ -31,6 +39,9 @@ class HomeFragment extends Fragment {
 		mPager = (ViewPager) rootView.findViewById(R.id.home_pager);
 		mPagerAdapter = new HomePagerAdapter(getFragmentManager());
 		mPager.setAdapter(mPagerAdapter);
+		
+		TabPageIndicator indicator = (TabPageIndicator) rootView.findViewById(R.id.viewpagerIndicator);
+		indicator.setViewPager(mPager);
 		
 		return rootView;
 	}
@@ -55,6 +66,11 @@ class HomeFragment extends Fragment {
 		@Override
 		public Fragment getItem(int arg0) {
 			return new HomePageFragment();
+		}
+		
+		@Override
+		public CharSequence getPageTitle(int position) {
+			return STR_TITLES[position].toUpperCase();
 		}
 		
 		@Override
