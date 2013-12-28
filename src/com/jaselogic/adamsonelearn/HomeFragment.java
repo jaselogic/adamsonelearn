@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTabHost;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -13,6 +14,9 @@ import android.view.ViewGroup;
 class HomeFragment extends Fragment {
 	
 	private static final int NUM_PAGES = 5;
+	
+	//tabhost
+	private FragmentTabHost mTabHost;
 	//pager view
 	private ViewPager mPager;
 	//pager adapter
@@ -25,15 +29,26 @@ class HomeFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_home, container, false);
 		
-		//create a new instance of ViewPager and PagerAdapter
-		mPager = (ViewPager) rootView.findViewById(R.id.home_pager);
-		mPagerAdapter = new HomePagerAdapter(getFragmentManager());
-		mPager.setAdapter(mPagerAdapter);
-		
-		return rootView;
+        mTabHost = new FragmentTabHost(getActivity());
+        mTabHost.setup(getActivity(), getChildFragmentManager(),R.layout.fragment_tabs);
+
+        mTabHost.addTab(mTabHost.newTabSpec("updates").setIndicator("Updates"),
+                TestFragment.class, null);
+        mTabHost.addTab(mTabHost.newTabSpec("subjects").setIndicator("Subjects"),
+                TestFragment.class, null);
+        mTabHost.addTab(mTabHost.newTabSpec("schedule").setIndicator("Schedule"),
+                TestFragment.class, null);
+
+        return mTabHost;
+        
 	}
+	
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mTabHost = null;
+    }
 	
 	//Page fragment class
 	public class HomePageFragment extends Fragment {
