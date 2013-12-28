@@ -18,11 +18,14 @@
     adjust drawer for RTL layouts
     -->
     <ListView android:id="@+id/drawerlistview_dashboard"
+        android:paddingTop="20dp"
+        android:clipToPadding="false"
+        android:fadingEdge="none"
         android:layout_width="240dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:choiceMode="singleChoice"
         android:divider="@android:color/transparent"
         android:dividerHeight="0dp"
-        android:background="#111"/>
+        android:background="#fff"/>
 </android.support.v4.widget.DrawerLayout>
