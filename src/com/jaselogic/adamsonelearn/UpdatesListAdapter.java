@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,6 +28,7 @@ class UpdatesListAdapter extends BaseAdapter {
     @Override
     public int getItemViewType(int position) {
     	// TODO Auto-generated method stub
+    	//return mListItems.get(position).viewType;
     	return 0;
     }
     
@@ -59,11 +63,12 @@ class UpdatesListAdapter extends BaseAdapter {
         // create a ViewHolder reference
         ViewHolder holder;
         //get the string item from the position "position" from array list to put it on the TextView
-        UpdatesListItem listItem = mListItems.get(position);
+        final UpdatesListItem listItem = mListItems.get(position);
         
         //check to see if the reused view is null or not, if is not null then reuse it
         if (view == null) {
             holder = new ViewHolder();
+            
     		view = mLayoutInflater.inflate(R.layout.updates_list_item, viewGroup, false);
             holder.nameTextView = (TextView) view.findViewById(R.id.updates_name);
             holder.subjectTextView = (TextView) view.findViewById(R.id.updates_subject);
@@ -71,7 +76,7 @@ class UpdatesListAdapter extends BaseAdapter {
             holder.bodyTextView = (TextView) view.findViewById(R.id.updates_body);
             holder.dateAddedTextView = (TextView) view.findViewById(R.id.updates_date);
             holder.avatarImageView = (ImageView) view.findViewById(R.id.updates_avatar);
- 
+            
             // the setTag is used to store the data within this view
             view.setTag(holder);
         } else {
@@ -100,6 +105,7 @@ class UpdatesListAdapter extends BaseAdapter {
         	holder.titleTextView.setText(listItem.title);
         	holder.bodyTextView.setText(listItem.body);
         	holder.dateAddedTextView.setText(listItem.dateAdded);
+        	      	
         	UrlImageViewHelper.setUrlDrawable(holder.avatarImageView, listItem.avatarSrc);
         }
  
@@ -126,5 +132,6 @@ class UpdatesListAdapter extends BaseAdapter {
 		public String body;
 		public String dateAdded;
 		public String avatarSrc;
+		public int viewType;
 	}
 }
