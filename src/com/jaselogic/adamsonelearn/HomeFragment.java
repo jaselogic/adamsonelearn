@@ -45,18 +45,7 @@ class HomeFragment extends Fragment {
 		
 		return rootView;
 	}
-	
-	//Page fragment class
-	public class HomePageFragment extends Fragment {
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			ViewGroup pageRootView = (ViewGroup) inflater.inflate(
-					R.layout.layout_inner_home, container, false);
-			return pageRootView;
-		}
-	}
-	
+
 	//Home Pager Adapter
 	private class HomePagerAdapter extends FragmentStatePagerAdapter {
 		public HomePagerAdapter(FragmentManager fm) {
@@ -64,8 +53,16 @@ class HomeFragment extends Fragment {
 		}
 		
 		@Override
-		public Fragment getItem(int arg0) {
-			return new HomePageFragment();
+		public Fragment getItem(int position) {
+			if(position == 0) {
+				return new HomePageFragment.UpdatesFragment();
+			}
+			
+			if(position == 1) {
+				return new HomePageFragment.SubjectsFragment();
+			}
+			
+			return new HomePageFragment.ScheduleFragment();
 		}
 		
 		@Override
