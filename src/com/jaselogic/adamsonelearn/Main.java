@@ -1,18 +1,16 @@
 package com.jaselogic.adamsonelearn;
 
 import java.io.IOException;
-import java.util.Map;
-
-import org.jsoup.Jsoup;
-import org.jsoup.Connection.Method;
 import org.jsoup.Connection.Response;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import android.os.AsyncTask;
+import com.jaselogic.adamsonelearn.DocumentManager.DocumentCookie;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,7 +19,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-public class Main extends Activity {
+public class Main extends Activity implements DocumentManager.ResponseReceiver {
 
 	private Button btnLogin;
 	private EditText txtStudNo;
@@ -60,7 +58,7 @@ public class Main extends Activity {
 					
 					pb1.setVisibility(View.VISIBLE);
 					
-					new DownloadDocumentTask().execute(studNo, password);
+					new DocumentManager.DownloadDocumentTask(Main.this, DocumentManager.PAGE_BALINQ, null).execute(studNo, password);
 					//temporary
 					//startActivity(new Intent(Main.this, Dashboard.class));
 				}
@@ -75,46 +73,22 @@ public class Main extends Activity {
 		return true;
 	}
 
-	private class DownloadDocumentTask extends AsyncTask<String, Void, Document> {
-
-		@Override
-		protected Document doInBackground(String... details) {
-			// TODO Auto-generated method stub
-	        Document doc = null;
-	        Response res = null;
-	        try {                                              
-	            res = Jsoup.connect("http://learn.adamson.edu.ph/V4/")
-	            		.data("TXTusername", details[0], "TXTpassword", details[1], "BTNlogin", "Login")
-	            		.method(Method.POST)
-	            		.execute();
-	            Map<String, String> loginCookies = res.cookies();
-	            
-	            doc = Jsoup.connect("http://learn.adamson.edu.ph/V4/?page=balinq")
-	            		.cookies(loginCookies)
-	            		.get();
-	        } catch (IOException e) {                          
-	            e.printStackTrace();                           
-	        }
-	        
-	        return doc;
-		}
+	@Override
+	public void onResourceReceived(DocumentCookie res) throws IOException {
+		Intent intent = new Intent(Main.this, Dashboard.class);
+		//changed to dashboard class
+		String avatarSrc = res.document.select("img.avatar").get(0).attr("src");
+		Elements studinfo = res.document.select("div.studinfo");
+		avatarSrc = "http://learn.adamson.edu.ph/" + avatarSrc.substring(3,
+				(avatarSrc.indexOf('#') > 0 ? avatarSrc.indexOf('#') : avatarSrc.length()));
 		
-		protected void onPostExecute(Document result) {
-			Intent intent = new Intent(Main.this, Dashboard.class);
-			//changed to dashboard class
-			String avatarSrc = result.select("img.avatar").get(0).attr("src");
-			Elements studinfo = result.select("div.studinfo");
-			avatarSrc = "http://learn.adamson.edu.ph/" + avatarSrc.substring(3,
-					(avatarSrc.indexOf('#') > 0 ? avatarSrc.indexOf('#') : avatarSrc.length()));
-			
-			intent.putExtra("avatarSrc", avatarSrc);
-			intent.putExtra("name", studinfo.get(0).text());
-			intent.putExtra("studNo", studinfo.get(1).text());
-			intent.putExtra("course", studinfo.get(2).text());
-			intent.putExtra("year", studinfo.get(3).text());
-			startActivity(intent);
-		}
-		
-	}
-	
+		Log.d("Jus", "STARTED!");
+		intent.putExtra("PHPSESSID", res.cookie);
+		intent.putExtra("avatarSrc", avatarSrc);
+		intent.putExtra("name", studinfo.get(0).text());
+		intent.putExtra("studNo", studinfo.get(1).text());
+		intent.putExtra("course", studinfo.get(2).text());
+		intent.putExtra("year", studinfo.get(3).text());
+		startActivity(intent);
+	}	
 }

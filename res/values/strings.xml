@@ -10,6 +10,7 @@
     <string name="logo_description">Adamson University E-Learning</string>
     <string name="drawer_open">Open Drawer</string>
     <string name="drawer_close">Close Drawer</string>
+    <string name="lipsum">Lorem Ipsum Dolor Sit Amet</string>
     
     <!-- String array for drawer list menu items -->
     
