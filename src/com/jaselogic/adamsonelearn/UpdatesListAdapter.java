@@ -5,12 +5,9 @@ import java.util.ArrayList;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -86,20 +83,7 @@ class UpdatesListAdapter extends BaseAdapter {
  
         if (listItem != null) {
         	//TODO: might want to check if each is null.
-            /*if (holder.itemName != null) {
-                //set the item name on the TextView
-                holder.itemName.setText(listItem.label);
-            }
-            if (holder.iconImageView != null) {
-            	switch (listItem.itemType) {
-            		case NAME:
-            			UrlImageViewHelper.setUrlDrawable(holder.iconImageView, avatarSrc);
-            			break;
-            		case SIMPLE:
-            			holder.iconImageView.setImageResource(listItem.imageResource);
-            			break;
-            	}
-            }*/
+
         	holder.nameTextView.setText(listItem.name);
         	holder.subjectTextView.setText(listItem.subject);
         	holder.titleTextView.setText(listItem.title);

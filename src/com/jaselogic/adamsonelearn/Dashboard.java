@@ -76,12 +76,7 @@ public class Dashboard extends ActionBarActivity {
 		
 		//Create new drawer list adapter
 		drawerListAdapter = new DrawerListAdapter(Dashboard.this, drawerItemList, studinfo.getString("avatarSrc"));
-        /*for (int i = 1; i < 50; i++) {
-            drawerListAdapter.addItem("item " + i);
-            if (i % 4 == 0) {
-                drawerListAdapter.addSeparatorItem("separator " + i);
-            }
-        }*/
+
         lvDrawer.setAdapter(drawerListAdapter);
         
         //enable action bar icon to toggle drawer display

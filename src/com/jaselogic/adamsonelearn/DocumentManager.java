@@ -8,7 +8,6 @@ import org.jsoup.Connection.Response;
 import org.jsoup.nodes.Document;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 class DocumentManager {
 	public final static String PAGE_LOGIN = "http://learn.adamson.edu.ph/V4/";
@@ -41,7 +40,6 @@ class DocumentManager {
 		            mCookie = loginres.cookie("PHPSESSID");
 	        	}
 	            
-	        	Log.d("Jus", "mCookie: " + mCookie);
 	        	//TODO: Handle if cookie has expired.
 	        	result = new DocumentCookie();
 	        	
@@ -49,7 +47,6 @@ class DocumentManager {
 	            		.cookie("PHPSESSID", mCookie)
 	            		.get();
 	            result.cookie = mCookie;
-	            Log.d("Jus", "SetCurrentCookie: " + result.cookie);
 	            
 	        } catch (IOException e) {                          
 	            e.printStackTrace();                           
@@ -59,7 +56,6 @@ class DocumentManager {
 		}
 		
 		protected void onPostExecute(DocumentCookie result) {
-			Log.d("Jus", "onPostExecute");
 			try {
 				mRec.onResourceReceived(result);
 			} catch (IOException e) {

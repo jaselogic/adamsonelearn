@@ -13,7 +13,7 @@ import com.jaselogic.adamsonelearn.UpdatesListAdapter.UpdatesListItem;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -86,14 +86,6 @@ class HomePageFragment {
 			}
 			
 			adapter.notifyDataSetChanged();
-			/*
-			Log.d("JusSelector", updates.select(SELECTOR_DATE).text());
-			Log.d("JusSelector", updates.select(SELECTOR_SUBJECT).text());
-			Log.d("JusSelector", updates.select(SELECTOR_AVATAR).text());
-			Log.d("JusSelector", updates.select(SELECTOR_TITLE).text());
-			Log.d("JusSelector", updates.select(SELECTOR_BODY).text());
-			Log.d("JusSelector", updates.select(SELECTOR_TEACHER).text());
-			Log.d("JusSelector", updates.select(SELECTOR_AVATAR).attr("src"));*/
 		}
 	}
 	

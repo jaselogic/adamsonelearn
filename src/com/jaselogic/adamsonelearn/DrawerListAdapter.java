@@ -103,6 +103,8 @@ class DrawerListAdapter extends BaseAdapter {
             		case SIMPLE:
             			holder.iconImageView.setImageResource(listItem.imageResource);
             			break;
+            		default:
+            			break;
             	}
             }
         }

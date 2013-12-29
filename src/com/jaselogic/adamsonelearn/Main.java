@@ -1,8 +1,6 @@
 package com.jaselogic.adamsonelearn;
 
 import java.io.IOException;
-import org.jsoup.Connection.Response;
-import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import com.jaselogic.adamsonelearn.DocumentManager.DocumentCookie;
@@ -10,7 +8,6 @@ import com.jaselogic.adamsonelearn.DocumentManager.DocumentCookie;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -59,8 +56,6 @@ public class Main extends Activity implements DocumentManager.ResponseReceiver {
 					pb1.setVisibility(View.VISIBLE);
 					
 					new DocumentManager.DownloadDocumentTask(Main.this, DocumentManager.PAGE_BALINQ, null).execute(studNo, password);
-					//temporary
-					//startActivity(new Intent(Main.this, Dashboard.class));
 				}
 			}
 		});
@@ -82,7 +77,6 @@ public class Main extends Activity implements DocumentManager.ResponseReceiver {
 		avatarSrc = "http://learn.adamson.edu.ph/" + avatarSrc.substring(3,
 				(avatarSrc.indexOf('#') > 0 ? avatarSrc.indexOf('#') : avatarSrc.length()));
 		
-		Log.d("Jus", "STARTED!");
 		intent.putExtra("PHPSESSID", res.cookie);
 		intent.putExtra("avatarSrc", avatarSrc);
 		intent.putExtra("name", studinfo.get(0).text());
