@@ -17,11 +17,11 @@ class DocumentManager {
 	public static class DownloadDocumentTask extends AsyncTask<String, Void, Response> {
 
 		ResponseReceiver mRec;
-		Map<String, String> mCookies;
+		String mCookie;
 		
-		public DownloadDocumentTask(ResponseReceiver rec, Map<String, String> cookies) {
+		public DownloadDocumentTask(ResponseReceiver rec, String cookie) {
 			mRec = rec;
-			mCookies = cookies;
+			mCookie = cookie;
 		}
 		
 		@Override
@@ -29,15 +29,19 @@ class DocumentManager {
 	        Response loginres = null;
 	        Response result = null;
 	        
-	        try {                                              
-	            loginres = Jsoup.connect("http://learn.adamson.edu.ph/V4/")
-	            		.data("TXTusername", details[0], "TXTpassword", details[1], "BTNlogin", "Login")
-	            		.method(Method.POST)
-	            		.execute();
-	            Map<String, String> loginCookies = loginres.cookies();
+	        try {
+	        	if(mCookie == null) {
+		            loginres = Jsoup.connect(Page.PAGE_LOGIN)
+		            		.data("TXTusername", details[0], "TXTpassword", details[1], "BTNlogin", "Login")
+		            		.method(Method.POST)
+		            		.execute();
+		            mCookie = loginres.cookie("PHPSESSID");
+	        	}
 	            
-	            result = Jsoup.connect("http://learn.adamson.edu.ph/V4/?page=balinq")
-	            		.cookies(loginCookies)
+	        	//TODO: Handle if cookie has expired.
+	        	
+	            result = Jsoup.connect(Page.PAGE_BALINQ)
+	            		.cookie("PHPSESSID", mCookie)
 	            		.execute();
 	            
 	            
@@ -55,5 +59,10 @@ class DocumentManager {
 	
 	public interface ResponseReceiver {
 		void onResourceReceived(Response res);
+	}
+	
+	public static class Page {
+		public final static String PAGE_LOGIN = "http://learn.adamson.edu.ph/V4/";
+		public final static String PAGE_BALINQ = "http://learn.adamson.edu.ph/V4/?page=balinq";
 	}
 }

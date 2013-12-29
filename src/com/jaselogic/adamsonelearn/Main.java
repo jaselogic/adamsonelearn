@@ -87,6 +87,7 @@ public class Main extends Activity implements DocumentManager.ResponseReceiver {
 			avatarSrc = "http://learn.adamson.edu.ph/" + avatarSrc.substring(3,
 					(avatarSrc.indexOf('#') > 0 ? avatarSrc.indexOf('#') : avatarSrc.length()));
 			
+			intent.putExtra("PHPSESSID", res.cookie("PHPSESSID"));
 			intent.putExtra("avatarSrc", avatarSrc);
 			intent.putExtra("name", studinfo.get(0).text());
 			intent.putExtra("studNo", studinfo.get(1).text());
