@@ -1,6 +1,7 @@
 package com.jaselogic.adamsonelearn;
 
 import java.util.ArrayList;
+
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.content.Context;
@@ -116,5 +117,17 @@ class DrawerListAdapter extends BaseAdapter {
 		protected TextView itemName;
 		protected ImageView iconImageView;
 	}
-
+	
+	//Drawer list item
+	public static class DrawerListItem {
+		public enum ItemType {
+			NAME,
+			SIMPLE,
+			SEPARATOR
+		}
+		
+		public ItemType itemType;
+		public String label;
+		public int imageResource;
+	}
 }
