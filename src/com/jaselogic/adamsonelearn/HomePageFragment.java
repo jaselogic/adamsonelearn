@@ -8,6 +8,7 @@ import org.jsoup.select.Elements;
 import com.jaselogic.adamsonelearn.DocumentManager.DocumentCookie;
 import com.jaselogic.adamsonelearn.DrawerListAdapter.DrawerListItem;
 import com.jaselogic.adamsonelearn.DrawerListAdapter.DrawerListItem.ItemType;
+import com.jaselogic.adamsonelearn.UpdatesListAdapter.UpdatesListItem;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -30,8 +31,8 @@ class HomePageFragment {
 	
 	public static class UpdatesFragment extends ListFragment implements DocumentManager.ResponseReceiver {
 		private String cookie;
-		private DrawerListAdapter adapter;
-		ArrayList<DrawerListItem> tester;
+		private UpdatesListAdapter adapter;
+		ArrayList<UpdatesListItem> updateArrayList;
 		
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -43,13 +44,14 @@ class HomePageFragment {
 			dummyItem.label = "test";
 			dummyItem.itemType = ItemType.NAME;
 			
-			tester = new ArrayList<DrawerListItem>();	
-			adapter = new DrawerListAdapter(getActivity(), tester, ((Dashboard)getActivity()).studinfo.getString("avatarSrc"));
+			updateArrayList = new ArrayList<UpdatesListItem>();	
+			adapter = new UpdatesListAdapter(getActivity(), updateArrayList);
 			setListAdapter(adapter);
 			
 			//get original cookie
 			cookie = ((Dashboard)getActivity()).cookie;
 			
+			//TODO: remove strings stdno pw
 			new DocumentManager.DownloadDocumentTask(UpdatesFragment.this, 
 					DocumentManager.PAGE_UPDATES, cookie).execute("stdno", "pw");
 			
@@ -61,24 +63,37 @@ class HomePageFragment {
 			//Root node for updates page.
 			Elements updates = res.document.select(SELECTOR_UPDATES);
 			
-			Elements teachers = updates.select(SELECTOR_TEACHER);
-			
-			for(int i = 0; i < teachers.size(); i++) {
-				DrawerListItem dummyItem = new DrawerListItem();
-				dummyItem.label = teachers.get(i).text();
-				dummyItem.itemType = ItemType.NAME;
-				tester.add(dummyItem);
+			Elements teacher = updates.select(SELECTOR_TEACHER);
+			Elements subject = updates.select(SELECTOR_SUBJECT);
+			Elements title = updates.select(SELECTOR_TITLE);
+			Elements body = updates.select(SELECTOR_BODY);
+			Elements dateAdded = updates.select(SELECTOR_DATE);
+			Elements avatarSrc = updates.select(SELECTOR_AVATAR);
+
+			for(int i = 0; i < subject.size(); i++) {
+				UpdatesListItem updateItem = new UpdatesListItem();
+				updateItem.name = teacher.get(i).text();
+				updateItem.subject = subject.get(i).text();
+				updateItem.title = title.get(i).text();
+				updateItem.body = body.get(i).text();
+				updateItem.dateAdded = dateAdded.get(i).text();
+				
+				String src = avatarSrc.get(i).attr("src");
+				updateItem.avatarSrc = "http://learn.adamson.edu.ph/" + src.substring(3,
+						(src.indexOf('#') > 0 ? src.indexOf('#') : src.length()));
+						
+				updateArrayList.add(updateItem);
 			}
 			
 			adapter.notifyDataSetChanged();
-			
+			/*
 			Log.d("JusSelector", updates.select(SELECTOR_DATE).text());
 			Log.d("JusSelector", updates.select(SELECTOR_SUBJECT).text());
 			Log.d("JusSelector", updates.select(SELECTOR_AVATAR).text());
 			Log.d("JusSelector", updates.select(SELECTOR_TITLE).text());
 			Log.d("JusSelector", updates.select(SELECTOR_BODY).text());
 			Log.d("JusSelector", updates.select(SELECTOR_TEACHER).text());
-			Log.d("JusSelector", updates.select(SELECTOR_AVATAR).attr("src"));
+			Log.d("JusSelector", updates.select(SELECTOR_AVATAR).attr("src"));*/
 		}
 	}
 	

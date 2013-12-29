@@ -14,7 +14,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,7 +42,6 @@ public class Dashboard extends ActionBarActivity {
 		
 		//store cookie
 		cookie = studinfo.getString("PHPSESSID");
-		Log.d("Jus", "DashboardCookie: " + cookie);
 		
 		//get title of application and store to title
 		title = drawerTitle = getTitle();
