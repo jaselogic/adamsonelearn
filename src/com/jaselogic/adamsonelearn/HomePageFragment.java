@@ -3,14 +3,12 @@ package com.jaselogic.adamsonelearn;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.jsoup.Connection.Response;
-import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import com.jaselogic.adamsonelearn.DocumentManager.DocumentCookie;
-import com.jaselogic.adamsonelearn.DrawerListItem.ItemType;
+import com.jaselogic.adamsonelearn.DrawerListAdapter.DrawerListItem;
+import com.jaselogic.adamsonelearn.DrawerListAdapter.DrawerListItem.ItemType;
 
-import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
@@ -18,15 +16,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 class HomePageFragment {
 	//Page fragment class
-	public final static String SELECTOR_UPDATES = "div.divupdates td > div";
-	public final static String SELECTOR_SUBJECT = ":root > div:nth-of-type(1) span";
-	public final static String SELECTOR_TITLE = ":root > div:nth-of-type(2) span";
-	public final static String SELECTOR_BODY = ":root > div:nth-of-type(3) span";
-	public final static String SELECTOR_DATE = ":root > div:nth-of-type(4)";
+	public final static String SELECTOR_UPDATES = "tr";
+	public final static String SELECTOR_SUBJECT = "div > div:nth-of-type(1) span";
+	public final static String SELECTOR_TITLE = "div > div:nth-of-type(2) span";
+	public final static String SELECTOR_BODY = "div > div:nth-of-type(3) span";
+	public final static String SELECTOR_DATE = "div > div:nth-of-type(4)";
+	public final static String SELECTOR_AVATAR = "img[alt=Avatar]";
 	public final static String SELECTOR_TEACHER = "span.teachername";
 	
 	
@@ -45,14 +43,9 @@ class HomePageFragment {
 			dummyItem.label = "test";
 			dummyItem.itemType = ItemType.NAME;
 			
-			tester = new ArrayList<DrawerListItem>();
-			tester.add(dummyItem);
-			
-			adapter = new DrawerListAdapter(getActivity(), tester, ((Dashboard)getActivity()).studinfo.getString("name"));
+			tester = new ArrayList<DrawerListItem>();	
+			adapter = new DrawerListAdapter(getActivity(), tester, ((Dashboard)getActivity()).studinfo.getString("avatarSrc"));
 			setListAdapter(adapter);
-			
-			tester.add(dummyItem);
-			adapter.notifyDataSetChanged();
 			
 			//get original cookie
 			cookie = ((Dashboard)getActivity()).cookie;
@@ -65,17 +58,27 @@ class HomePageFragment {
 
 		@Override
 		public void onResourceReceived(DocumentCookie res) throws IOException {
-			// TODO Auto-generated method stub
-			
+			//Root node for updates page.
 			Elements updates = res.document.select(SELECTOR_UPDATES);
-			Log.d("JusSelector", updates.select(SELECTOR_DATE).text());
-			String teststr = updates.select(SELECTOR_DATE).text().substring(1, 10);
-			DrawerListItem dummyItem = new DrawerListItem();
-			dummyItem.label = teststr;
-			dummyItem.itemType = ItemType.NAME;
 			
-			tester.add(dummyItem);
+			Elements teachers = updates.select(SELECTOR_TEACHER);
+			
+			for(int i = 0; i < teachers.size(); i++) {
+				DrawerListItem dummyItem = new DrawerListItem();
+				dummyItem.label = teachers.get(i).text();
+				dummyItem.itemType = ItemType.NAME;
+				tester.add(dummyItem);
+			}
+			
 			adapter.notifyDataSetChanged();
+			
+			Log.d("JusSelector", updates.select(SELECTOR_DATE).text());
+			Log.d("JusSelector", updates.select(SELECTOR_SUBJECT).text());
+			Log.d("JusSelector", updates.select(SELECTOR_AVATAR).text());
+			Log.d("JusSelector", updates.select(SELECTOR_TITLE).text());
+			Log.d("JusSelector", updates.select(SELECTOR_BODY).text());
+			Log.d("JusSelector", updates.select(SELECTOR_TEACHER).text());
+			Log.d("JusSelector", updates.select(SELECTOR_AVATAR).attr("src"));
 		}
 	}
 	
