@@ -1,9 +1,6 @@
 package com.jaselogic.adamsonelearn;
 
 import java.util.ArrayList;
-import java.util.TreeSet;
-
-import com.jaselogic.adamsonelearn.DrawerListItem.ItemType;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.content.Context;

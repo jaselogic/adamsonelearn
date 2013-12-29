@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,14 +28,20 @@ public class Dashboard extends ActionBarActivity {
 	private CharSequence title;
 	private CharSequence drawerTitle;
 	
+	public String cookie;
+	public Bundle studinfo;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_dashboard);
-		
+
 		//get extras
-		Bundle studinfo = getIntent().getExtras();
+		studinfo = getIntent().getExtras();
+		
+		//store cookie
+		cookie = studinfo.getString("PHPSESSID");
+		Log.d("Jus", "DashboardCookie: " + cookie);
 		
 		//get title of application and store to title
 		title = drawerTitle = getTitle();
