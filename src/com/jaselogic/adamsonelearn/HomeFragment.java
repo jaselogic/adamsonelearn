@@ -16,9 +16,9 @@ class HomeFragment extends Fragment {
 	
 	private static final int NUM_PAGES = 3;
 	private static final String[] STR_TITLES = new String[] {
-		"Tab 1",
-		"Tab 2",
-		"Tab 3"
+		"Updates",
+		"Subjects",
+		"Schedule"
 	};
 	
 	//pager view

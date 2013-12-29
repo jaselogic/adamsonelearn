@@ -2,18 +2,19 @@ package com.jaselogic.adamsonelearn;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 class HomePageFragment {
 	//Page fragment class
-	public static class UpdatesFragment extends Fragment {
+	public static class UpdatesFragment extends ListFragment {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			ViewGroup pageRootView = (ViewGroup) inflater.inflate(
-					R.layout.fragment_updates, container, false);
+			View pageRootView = inflater.inflate(R.layout.fragment_updates, 
+					container, false);
 			return pageRootView;
 		}
 	}
