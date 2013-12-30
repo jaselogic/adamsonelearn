@@ -108,7 +108,7 @@ public class Dashboard extends ActionBarActivity {
         
         //Display home page
         //TODO: Check this on save instance state
-        displayPage(Page.HOME);
+        displayPage(Page.CURRICULUM);
 	}
 	
 	//called via supportInvalidateOptionsMenu
@@ -157,6 +157,7 @@ public class Dashboard extends ActionBarActivity {
 				fragment = new HomeFragment();
 				break;
 			case CURRICULUM:
+				fragment = new CurriculumFragment();
 				break;
 		}
 		

@@ -52,9 +52,7 @@ public class CurriculumFragment extends Fragment {
 		
 		@Override
 		public Fragment getItem(int arg0) {
-			if(position == 0) return CurriculumPageFragment.YearSelectFragment();
-			
-			return CurriculumPageFragment.YearPageFragment();
+			return new CurriculumPageFragment.YearSelectFragment();
 		}
 	}
 }

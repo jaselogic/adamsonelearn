@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 class HomePageFragment {
 	//Page fragment class
 	public static class UpdatesFragment extends ListFragment implements ResponseReceiver {
+		//TODO: change to private final static
 		public final static String SELECTOR_UPDATES_PAGE = "tr";
 		public final static String SELECTOR_SUBJECT = "div > div:nth-of-type(1) span";
 		public final static String SELECTOR_TITLE = "div > div:nth-of-type(2) span";

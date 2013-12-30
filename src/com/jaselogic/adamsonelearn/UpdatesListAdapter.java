@@ -54,7 +54,6 @@ class UpdatesListAdapter extends BaseAdapter {
     }
  
     @Override
- 
     public View getView(int position, View view, ViewGroup viewGroup) {
  
         // create a ViewHolder reference
