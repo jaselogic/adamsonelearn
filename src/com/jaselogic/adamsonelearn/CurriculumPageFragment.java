@@ -88,7 +88,15 @@ class CurriculumPageFragment {
 								
 								//CHECK IF THERE ARE ELECTIVES
 								if(item.size() > 1) {
-									Log.d("ELEC", item.last().text());
+									Elements elecs = item.select("tbody div");
+									Iterator<Element> elecItr = elecs.iterator();
+									//GET PK, SUBJCODE, SUBJNAME
+									while(elecItr.hasNext()) {
+										Element elec = elecItr.next();
+										Log.d("ELEC", elec.select("span:nth-of-type(1)").text().trim() + " " + 
+												elec.select("span:nth-of-type(2)").text().trim() + " " + 
+												elec.ownText().trim() );
+									}
 								}
 							}
 						}
