@@ -156,6 +156,8 @@ public class Dashboard extends ActionBarActivity {
 			case HOME:
 				fragment = new HomeFragment();
 				break;
+			case CURRICULUM:
+				break;
 		}
 		
 		// Insert fragment to content frame
