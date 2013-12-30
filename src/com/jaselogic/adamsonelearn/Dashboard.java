@@ -17,6 +17,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 public class Dashboard extends ActionBarActivity {
@@ -76,8 +77,12 @@ public class Dashboard extends ActionBarActivity {
 		
 		//Create new drawer list adapter
 		drawerListAdapter = new DrawerListAdapter(Dashboard.this, drawerItemList, studinfo.getString("avatarSrc"));
-
+		
+		//set adapter
         lvDrawer.setAdapter(drawerListAdapter);
+        
+        //set list item click listener
+        lvDrawer.setOnItemClickListener(new DrawerItemClickListener());
         
         //enable action bar icon to toggle drawer display
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -136,17 +141,13 @@ public class Dashboard extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 	
-	//Word caps case for all caps name
-	private String setWordCaps(String input) {
-		StringBuffer buf = new StringBuffer();
-	    Matcher m = Pattern.compile("([a-z])([a-z]*)",
-		Pattern.CASE_INSENSITIVE).matcher(input);
-	    while (m.find()) {
-	    	m.appendReplacement(buf, 
-			m.group(1).toUpperCase() + m.group(2).toLowerCase());
-	    }
-	    return m.appendTail(buf).toString();
-	}
+	//ITEM CLICK LISTENER
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            displayPage(Page.values()[position]);
+        }
+    }
 	
 	//displays page fragment
 	private void displayPage(Page p) {
@@ -163,12 +164,35 @@ public class Dashboard extends ActionBarActivity {
         .addToBackStack(null).commit();
         
         // Set item checked in drawer, then close drawer
-        lvDrawer.setItemChecked(p.ordinal() + 1, true);
+        lvDrawer.setItemChecked(p.ordinal(), true);
         layoutDashboard.closeDrawer(lvDrawer);
 	}
 	
 	//pages enumeration
 	private enum Page {
-		HOME
+		ACCOUNT,
+		SEP_DASHBOARD,
+		HOME,
+		CURRICULUM,
+		GRADES,
+		BALANCE,
+		SEP_LEARNING,
+		ANNOUNCEMENTS,
+		LECTURES,
+		SEP_SET,
+		ABOUT,
+		LOGOUT
+	}
+	
+	//Word caps case for all caps name
+	private String setWordCaps(String input) {
+		StringBuffer buf = new StringBuffer();
+	    Matcher m = Pattern.compile("([a-z])([a-z]*)",
+		Pattern.CASE_INSENSITIVE).matcher(input);
+	    while (m.find()) {
+	    	m.appendReplacement(buf, 
+			m.group(1).toUpperCase() + m.group(2).toLowerCase());
+	    }
+	    return m.appendTail(buf).toString();
 	}
 }
