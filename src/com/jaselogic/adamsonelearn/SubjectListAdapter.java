@@ -54,7 +54,6 @@ class SubjectListAdapter extends BaseAdapter {
     }
  
     @Override
- 
     public View getView(int position, View view, ViewGroup viewGroup) {
  
         // create a ViewHolder reference
@@ -66,7 +65,7 @@ class SubjectListAdapter extends BaseAdapter {
         if (view == null) {
             holder = new ViewHolder();
             
-    		view = mLayoutInflater.inflate(R.layout.updates_list_item, viewGroup, false);
+    		view = mLayoutInflater.inflate(R.layout.subjects_list_item, viewGroup, false);
             holder.subjectTextView = (TextView) view.findViewById(R.id.subjects_subjectname);
             holder.teacherTextView = (TextView) view.findViewById(R.id.subjects_teacher);
             holder.scheduleTextView = (TextView) view.findViewById(R.id.subjects_schedule);
