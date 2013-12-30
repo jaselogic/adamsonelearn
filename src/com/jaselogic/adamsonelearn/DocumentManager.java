@@ -13,6 +13,7 @@ class DocumentManager {
 	public final static String PAGE_LOGIN = "http://learn.adamson.edu.ph/V4/";
 	public final static String PAGE_BALINQ = "http://learn.adamson.edu.ph/V4/?page=balinq";
 	public final static String PAGE_UPDATES = "http://learn.adamson.edu.ph/V4/modules/newsfeed.php?sy=2013-2014&t=2";
+	public final static String PAGE_SUBJECTS = "http://learn.adamson.edu.ph/V4/modules/mysubjects.php?cat=0";
 	
 	public static class DownloadDocumentTask extends AsyncTask<String, Void, DocumentCookie> {
 
