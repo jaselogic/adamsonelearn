@@ -58,6 +58,9 @@ class CurriculumPageFragment {
 				Iterator<Element> itr = curriculum.iterator();
 				
 				Pattern pattern = Pattern.compile("FF9");
+				String currentYear = "First Year";
+				int yr = 1;
+				int sem = 0;
 				Matcher matcher;
 				
 				while(itr.hasNext()) {
@@ -65,7 +68,16 @@ class CurriculumPageFragment {
 					matcher = pattern.matcher(inner.attr("style"));
 					if(matcher.find()) {
 						//GET YEAR, SEMESTER
-						Log.d("YEAR", inner.text().trim());
+						sem++;
+						String newYear = inner.text().trim().substring(0, inner.text().indexOf(','));
+						if (!currentYear.equals(newYear)) {
+							currentYear = newYear;
+							yr++;
+							sem = 1;
+						}
+						Log.d("YEAR", String.valueOf(yr));
+						Log.d("SEM", String.valueOf(sem));
+						
 						//skip div with CCC
 						itr.next();
 						
@@ -110,5 +122,6 @@ class CurriculumPageFragment {
 			}
 		}
 		
+		//END ONRESOURCERECEIVED
 	}
 }
