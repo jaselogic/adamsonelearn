@@ -8,6 +8,7 @@ import org.jsoup.Connection.Response;
 import org.jsoup.nodes.Document;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 class DocumentManager {
 	public final static String PAGE_LOGIN = "http://learn.adamson.edu.ph/V4/";
