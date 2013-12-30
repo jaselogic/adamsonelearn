@@ -93,20 +93,28 @@ public class Main extends Activity implements DocumentManager.ResponseReceiver {
 	public void onResourceReceived(DocumentCookie res) throws IOException {
 		//if document has been successfully retrieved
 		if(res != null) {
-			Intent intent = new Intent(Main.this, Dashboard.class);
-			//changed to dashboard class
-			String avatarSrc = res.document.select("img.avatar").get(0).attr("src");
-			Elements studinfo = res.document.select("div.studinfo");
-			avatarSrc = "http://learn.adamson.edu.ph/" + avatarSrc.substring(3,
-					(avatarSrc.indexOf('#') > 0 ? avatarSrc.indexOf('#') : avatarSrc.length()));
-			
-			intent.putExtra("PHPSESSID", res.cookie);
-			intent.putExtra("avatarSrc", avatarSrc);
-			intent.putExtra("name", studinfo.get(0).text());
-			intent.putExtra("studNo", studinfo.get(1).text());
-			intent.putExtra("course", studinfo.get(2).text());
-			intent.putExtra("year", studinfo.get(3).text());
-			startActivity(intent);
+			//Check if img.avatar exists
+			Elements avatar = res.document.select("img.avatar");
+			if(avatar.size() > 0) { //kung nakalogin successfully.
+				Intent intent = new Intent(Main.this, Dashboard.class);
+				//changed to dashboard class
+				String avatarSrc = avatar.get(0).attr("src");
+				Elements studinfo = res.document.select("div.studinfo");
+				avatarSrc = "http://learn.adamson.edu.ph/" + avatarSrc.substring(3,
+						(avatarSrc.indexOf('#') > 0 ? avatarSrc.indexOf('#') : avatarSrc.length()));
+				
+				intent.putExtra("PHPSESSID", res.cookie);
+				intent.putExtra("avatarSrc", avatarSrc);
+				intent.putExtra("name", studinfo.get(0).text());
+				intent.putExtra("studNo", studinfo.get(1).text());
+				intent.putExtra("course", studinfo.get(2).text());
+				intent.putExtra("year", studinfo.get(3).text());
+				startActivity(intent);
+			} else { //kung hindi nakalogin, mali user pass.
+				new AlertDialogBuilder.NeutralDialog("Mali password", 
+						"Invalid username/password", Main.this);
+				setViewVisibility(View.VISIBLE);				
+			}
 		} else { //if no document has been retrieved, possibly from faulty connection
 			new AlertDialogBuilder.NeutralDialog("Sira net", 
 					"May problema net connection mo. Ayusin mo.", Main.this);
