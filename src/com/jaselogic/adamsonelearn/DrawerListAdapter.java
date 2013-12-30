@@ -2,6 +2,7 @@ package com.jaselogic.adamsonelearn;
 
 import java.util.ArrayList;
 
+import com.jaselogic.adamsonelearn.DrawerListAdapter.DrawerListItem.ItemType;
 import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 
 import android.content.Context;
@@ -28,6 +29,17 @@ class DrawerListAdapter extends BaseAdapter {
     public int getItemViewType(int position) {
     	// TODO Auto-generated method stub
     	return mListItems.get(position).itemType.ordinal();
+    }
+    
+    @Override
+    public boolean isEnabled(int position) {
+    	// TODO Auto-generated method stub
+    	return mListItems.get(position).itemType != ItemType.SEPARATOR;
+    }
+    
+    @Override
+    public boolean areAllItemsEnabled() {
+    	return false;
     }
     
     @Override
