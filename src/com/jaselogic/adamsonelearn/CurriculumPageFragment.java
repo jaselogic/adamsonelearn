@@ -73,18 +73,23 @@ class CurriculumPageFragment {
 						while(itr.hasNext() && !(innest = itr.next()).attr("style").equals("height:20px;")) {
 							if(innest.hasClass("curr")) {
 								//GET PK, SUBJCODE, SUBJNAME, UNITS, PREREQ, COREQ
-								Elements item = innest.select(":root > table > tbody");
+								Elements item = innest.select(":root > table > tbody > tr");
 								Log.d("SUBJ",
-										item.select(":root > tr:nth-of-type(1) td:nth-of-type(1)").text().trim() + " " +
-										item.select(":root > tr:nth-of-type(1) td:nth-of-type(2)").text().trim() + " " +
-										item.select(":root > tr:nth-of-type(1) td:nth-of-type(3)").text().trim() + " " +
-										item.select(":root > tr:nth-of-type(1) td:nth-of-type(4)").text().trim() + " " +
+										item.first().select("td:nth-of-type(1)").text().trim() + " " +
+										item.first().select("td:nth-of-type(2)").text().trim() + " " +
+										item.first().select("td:nth-of-type(3)").text().trim() + " " +
+										item.first().select("td:nth-of-type(4)").text().trim() + " " +
 										"<" +
-										item.select(":root > tr:nth-of-type(1) td:nth-of-type(5) span").text().trim()
+										item.first().select("td:nth-of-type(5) span").text().trim()
 										+">" + " " +
 										"[" +
-										item.select(":root > tr:nth-of-type(1) td:nth-of-type(6) span").text().trim()
+										item.first().select("td:nth-of-type(6) span").text().trim()
 										+ "]");
+								
+								//CHECK IF THERE ARE ELECTIVES
+								if(item.size() > 1) {
+									Log.d("ELEC", item.last().text());
+								}
 							}
 						}
 						//Log.d("SUBJ", msg)
