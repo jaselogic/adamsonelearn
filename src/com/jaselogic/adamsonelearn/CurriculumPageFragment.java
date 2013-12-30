@@ -72,12 +72,19 @@ class CurriculumPageFragment {
 						Element innest;
 						while(itr.hasNext() && !(innest = itr.next()).attr("style").equals("height:20px;")) {
 							if(innest.hasClass("curr")) {
-								//GET PK, SUBJCODE, SUBJNAME, UNITS
+								//GET PK, SUBJCODE, SUBJNAME, UNITS, PREREQ, COREQ
+								Elements item = innest.select(":root > table > tbody");
 								Log.d("SUBJ",
-										innest.select(":root > table > tbody > tr:nth-of-type(1) td:nth-of-type(1)").text().trim() + " " +
-										innest.select(":root > table > tbody > tr:nth-of-type(1) td:nth-of-type(2)").text().trim() + " " +
-										innest.select(":root > table > tbody > tr:nth-of-type(1) td:nth-of-type(3)").text().trim() + " " +
-										innest.select(":root > table > tbody > tr:nth-of-type(1) td:nth-of-type(4)").text().trim());
+										item.select(":root > tr:nth-of-type(1) td:nth-of-type(1)").text().trim() + " " +
+										item.select(":root > tr:nth-of-type(1) td:nth-of-type(2)").text().trim() + " " +
+										item.select(":root > tr:nth-of-type(1) td:nth-of-type(3)").text().trim() + " " +
+										item.select(":root > tr:nth-of-type(1) td:nth-of-type(4)").text().trim() + " " +
+										"<" +
+										item.select(":root > tr:nth-of-type(1) td:nth-of-type(5) span").text().trim()
+										+">" + " " +
+										"[" +
+										item.select(":root > tr:nth-of-type(1) td:nth-of-type(6) span").text().trim()
+										+ "]");
 							}
 						}
 						//Log.d("SUBJ", msg)
