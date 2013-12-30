@@ -1,18 +1,16 @@
 package com.jaselogic.adamsonelearn;
 
 import java.io.IOException;
-import java.util.Map;
-
-import org.jsoup.Jsoup;
-import org.jsoup.Connection.Method;
-import org.jsoup.Connection.Response;
-import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import android.os.AsyncTask;
+import com.jaselogic.adamsonelearn.DocumentManager.DocumentCookie;
+
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,7 +19,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-public class Main extends Activity {
+public class Main extends Activity implements DocumentManager.ResponseReceiver {
 
 	private Button btnLogin;
 	private EditText txtStudNo;
@@ -53,19 +51,37 @@ public class Main extends Activity {
 				} else if(password.equals("")) { //else if password is empty
 					Toast.makeText(Main.this, "Please provide your E-Learning password", Toast.LENGTH_SHORT).show();
 				} else { //ready to send login details
-					//set visibilities
-					btnLogin.setVisibility(View.INVISIBLE);
-					txtStudNo.setVisibility(View.INVISIBLE);
-					txtPassword.setVisibility(View.INVISIBLE);
+					//set visibilities				
+					setViewVisibility(View.INVISIBLE);
 					
-					pb1.setVisibility(View.VISIBLE);
-					
-					new DownloadDocumentTask().execute(studNo, password);
+					//If internet connection is present
+					if(isNetworkConnected()) {
+						new DocumentManager.DownloadDocumentTask(Main.this, DocumentManager.PAGE_BALINQ, null).execute(studNo, password);
+					} else {
+						setViewVisibility(View.VISIBLE);
+						new AlertDialogBuilder.NeutralDialog("Walang net", 
+								"Wala kang net kumonek ka kaya muna.", Main.this);
+					}
 				}
 			}
 		});
 	}
+	
+	//Set visibility states of views on connection
+	private void setViewVisibility(int viewState) {
+		btnLogin.setVisibility(viewState);
+		txtStudNo.setVisibility(viewState);
+		txtPassword.setVisibility(viewState);
+		
+		pb1.setVisibility(viewState ^ 4);
+	}
 
+	//Check internet state
+	private boolean isNetworkConnected() {
+		  ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		  return (cm.getActiveNetworkInfo() != null);
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -73,45 +89,36 @@ public class Main extends Activity {
 		return true;
 	}
 
-	private class DownloadDocumentTask extends AsyncTask<String, Void, Document> {
-
-		@Override
-		protected Document doInBackground(String... details) {
-			// TODO Auto-generated method stub
-	        Document doc = null;
-	        Response res = null;
-	        try {                                              
-	            res = Jsoup.connect("http://learn.adamson.edu.ph/V4/")
-	            		.data("TXTusername", details[0], "TXTpassword", details[1], "BTNlogin", "Login")
-	            		.method(Method.POST)
-	            		.execute();
-	            Map<String, String> loginCookies = res.cookies();
-	            
-	            doc = Jsoup.connect("http://learn.adamson.edu.ph/V4/?page=balinq")
-	            		.cookies(loginCookies)
-	            		.get();
-	        } catch (IOException e) {                          
-	            e.printStackTrace();                           
-	        }
-	        
-	        return doc;
+	@Override
+	public void onResourceReceived(DocumentCookie res) throws IOException {
+		//if document has been successfully retrieved
+		if(res != null) {
+			//Check if img.avatar exists
+			Elements avatar = res.document.select("img.avatar");
+			if(avatar.size() > 0) { //kung nakalogin successfully.
+				Intent intent = new Intent(Main.this, Dashboard.class);
+				//changed to dashboard class
+				String avatarSrc = avatar.get(0).attr("src");
+				Elements studinfo = res.document.select("div.studinfo");
+				avatarSrc = "http://learn.adamson.edu.ph/" + avatarSrc.substring(3,
+						(avatarSrc.indexOf('#') > 0 ? avatarSrc.indexOf('#') : avatarSrc.length()));
+				
+				intent.putExtra("PHPSESSID", res.cookie);
+				intent.putExtra("avatarSrc", avatarSrc);
+				intent.putExtra("name", studinfo.get(0).text());
+				intent.putExtra("studNo", studinfo.get(1).text());
+				intent.putExtra("course", studinfo.get(2).text());
+				intent.putExtra("year", studinfo.get(3).text());
+				startActivity(intent);
+			} else { //kung hindi nakalogin, mali user pass.
+				new AlertDialogBuilder.NeutralDialog("Mali password", 
+						"Invalid username/password", Main.this);
+				setViewVisibility(View.VISIBLE);				
+			}
+		} else { //if no document has been retrieved, possibly from faulty connection
+			new AlertDialogBuilder.NeutralDialog("Sira net", 
+					"May problema net connection mo. Ayusin mo.", Main.this);
+			setViewVisibility(View.VISIBLE);
 		}
-		
-		protected void onPostExecute(Document result) {
-			Intent intent = new Intent(Main.this, Access.class);
-			String avatarSrc = result.select("img.avatar").get(0).attr("src");
-			Elements studinfo = result.select("div.studinfo");
-			avatarSrc = "http://learn.adamson.edu.ph/" + avatarSrc.substring(3,
-					(avatarSrc.indexOf('#') > 0 ? avatarSrc.indexOf('#') : avatarSrc.length()));
-			
-			intent.putExtra("avatarSrc", avatarSrc);
-			intent.putExtra("name", studinfo.get(0).text());
-			intent.putExtra("studNo", studinfo.get(1).text());
-			intent.putExtra("course", studinfo.get(2).text());
-			intent.putExtra("year", studinfo.get(3).text());
-			startActivity(intent);
-		}
-		
-	}
-	
+	}	
 }

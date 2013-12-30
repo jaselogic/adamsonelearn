@@ -8,5 +8,24 @@
     <string name="studno">Student Number</string>
     <string name="password">Password</string>
     <string name="logo_description">Adamson University E-Learning</string>
+    <string name="drawer_open">Open Drawer</string>
+    <string name="drawer_close">Close Drawer</string>
+    <string name="lipsum">Lorem Ipsum Dolor Sit Amet</string>
+    
+    <!-- String array for drawer list menu items -->
+    
+    <string-array name="drawer_items_array" >
+        <item>*Dashboard</item>
+        <item>Home</item>
+        <item>Curriculum</item>
+        <item>Grades</item>
+        <item>Balance Inquiry</item>
+        <item>*Learning Management</item>
+        <item>Announcements</item>
+        <item>Lectures</item>
+        <item>*E-Learning</item>
+        <item>About</item>
+        <item>Logout</item>
+    </string-array>
 
 </resources>
