@@ -59,6 +59,8 @@ public class Main extends Activity implements DocumentManager.ResponseReceiver {
 						new DocumentManager.DownloadDocumentTask(Main.this, DocumentManager.PAGE_BALINQ, null).execute(studNo, password);
 					} else {
 						setViewVisibility(View.VISIBLE);
+						new AlertDialogBuilder.NeutralDialog("Walang net", 
+								"Wala kang net kumonek ka kaya muna.", Main.this);
 					}
 				}
 			}
@@ -106,7 +108,9 @@ public class Main extends Activity implements DocumentManager.ResponseReceiver {
 			intent.putExtra("year", studinfo.get(3).text());
 			startActivity(intent);
 		} else { //if no document has been retrieved, possibly from faulty connection
-			
+			new AlertDialogBuilder.NeutralDialog("Sira net", 
+					"May problema net connection mo. Ayusin mo.", Main.this);
+			setViewVisibility(View.VISIBLE);
 		}
 	}	
 }
