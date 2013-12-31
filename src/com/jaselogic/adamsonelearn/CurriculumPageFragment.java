@@ -9,6 +9,10 @@ import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -44,7 +48,7 @@ class CurriculumPageFragment {
 			
 			//get original cookie
 			cookie = ((Dashboard)getActivity()).cookie;
-			
+			Log.d("CREATE", "CREATE");
 			//TODO: remove strings stdno pw
 			new DocumentManager.DownloadDocumentTask(YearSelectFragment.this, 
 				DocumentManager.PAGE_CURRICULUM, cookie).execute("stdno", "pw");
@@ -92,6 +96,7 @@ class CurriculumPageFragment {
 							if(innest.hasClass("curr")) {
 								//GET PK, SUBJCODE, SUBJNAME, UNITS, PREREQ, COREQ
 								Elements item = innest.select(":root > table > tbody > tr");
+								/*
 								Log.d("SUBJ",
 										item.first().select("td:nth-of-type(1)").text().trim() + " " +
 										item.first().select("td:nth-of-type(2)").text().trim() + " " +
@@ -102,7 +107,7 @@ class CurriculumPageFragment {
 										+">" + " " +
 										"[" +
 										item.first().select("td:nth-of-type(6) span").text().trim()
-										+ "]");
+										+ "]");*/
 								//create a new subject object
 								Subject subj = new Subject();
 								subj.year = yr;
@@ -139,6 +144,7 @@ class CurriculumPageFragment {
 									Elements elecs = item.select("tbody div");
 									Iterator<Element> elecItr = elecs.iterator();
 									//GET PK, SUBJCODE, SUBJNAME
+									subj.hasElec = elecItr.hasNext();
 									while(elecItr.hasNext()) {
 										Element elec = elecItr.next();
 										Log.d("ELEC", elec.select("span:nth-of-type(1)").text().trim() + " " + 
@@ -161,7 +167,124 @@ class CurriculumPageFragment {
 					}
 				}
 				//LOGTEST HERE
+
 				
+				//DATABASE
+				//Open database, or create if not yet created
+				SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
+			
+				//DROP TABLE IF IT EXISTS
+				eLearnDb.execSQL("DROP TABLE IF EXISTS SubjTable");
+				eLearnDb.execSQL("DROP TABLE IF EXISTS PrereqTable");
+				eLearnDb.execSQL("DROP TABLE IF EXISTS CoreqTable");
+				eLearnDb.execSQL("DROP TABLE IF EXISTS ElecTable");
+							
+				//CREATE TABLES
+				eLearnDb.execSQL("CREATE TABLE SubjTable " + 
+							"(Id INTEGER, SubjCode TEXT, SubjName TEXT, " + 
+							"Units INTEGER, Year INTEGER, Semester INTEGER, " +
+							"HasPrereq INTEGER, HasCoreq INTEGER, HasElec INTEGER);");
+				
+				
+				eLearnDb.execSQL("CREATE TABLE PrereqTable " + 
+							"(SubjId INTEGER, PrereqId INTEGER);");
+				
+				eLearnDb.execSQL("CREATE TABLE CoreqTable " + 
+							"(SubjId INTEGER, CoreqId INTEGER);");
+				
+				eLearnDb.execSQL("CREATE TABLE ElecTable " + 
+							"(SubjId INTEGER, ElecId INTEGER);");
+				
+				//INSERT MULTIPLE ITEMS.
+				String sqlSubj = "INSERT INTO SubjTable VALUES (?,?,?,?,?,?,?,?,?);";
+				String sqlPrereq = "INSERT INTO PrereqTable VALUES (?,?)";
+				String sqlCoreq = "INSERT INTO CoreqTable VALUES (?,?)";
+				String sqlElec = "INSERT INTO ElecTable VALUES (?,?)";
+				
+				SQLiteStatement stSubj = eLearnDb.compileStatement(sqlSubj);
+				SQLiteStatement stPrereq = eLearnDb.compileStatement(sqlPrereq);
+				SQLiteStatement stCoreq = eLearnDb.compileStatement(sqlCoreq);
+				SQLiteStatement stElec = eLearnDb.compileStatement(sqlElec);
+				Log.d("CURRI", "CURRI");							
+				//Iterate insert
+				eLearnDb.beginTransaction();
+				Iterator<ArrayList<Subject>> subjItr = mCurriculum.iterator();
+				int yrCnt = 1;
+				while(subjItr.hasNext()) {
+					ArrayList<Subject> subjList = subjItr.next();
+					Log.d("YEAR!", String.valueOf(yrCnt++));
+					Iterator<Subject> subjItrTest = subjList.iterator();
+					
+					while(subjItrTest.hasNext()) {
+						Subject testSubj = subjItrTest.next();
+						stSubj.clearBindings();
+						stSubj.bindLong(1, testSubj.pkey);
+						stSubj.bindString(2, testSubj.code);
+						stSubj.bindString(3, testSubj.name);
+						stSubj.bindLong(4, testSubj.units);
+						stSubj.bindLong(5, testSubj.year);
+						stSubj.bindLong(6, testSubj.semester);
+						stSubj.bindLong(7, testSubj.hasPrereq ? 1 : 0);
+						stSubj.bindLong(8, testSubj.hasCoreq ? 1 : 0);
+						stSubj.bindLong(9, testSubj.hasElec ? 1 : 0);
+						stSubj.execute();
+						
+						//IF HASPREREQ TRUE, ADD TO PREREQ TABLE
+						if(testSubj.hasPrereq) {
+							Iterator<Integer> prereqItr = testSubj.prereqCodeList.iterator();
+							while(prereqItr.hasNext()) {
+								stPrereq.clearBindings();
+								stPrereq.bindLong(1, testSubj.pkey);
+								stPrereq.bindLong(2, prereqItr.next().intValue());
+								stPrereq.execute();
+							}
+						}
+						
+						//IF HASCOREQ TRUE, ADD TO COREQ TABLE
+						if(testSubj.hasCoreq) {
+							Iterator<Integer> coreqItr = testSubj.coreqCodeList.iterator();
+							while(coreqItr.hasNext()) {
+								stCoreq.clearBindings();
+								stCoreq.bindLong(1, testSubj.pkey);
+								stCoreq.bindLong(2, coreqItr.next().intValue());
+								stCoreq.execute();
+							}
+						}
+						
+						//IF HASELEC, add to ElecTable, then add the subject to the Subjtable
+						if(testSubj.hasElec) {
+							Iterator<Subject> elecItr = testSubj.electiveList.iterator();
+							while(elecItr.hasNext()) {
+								Subject elecSubj = elecItr.next();
+								stElec.clearBindings();
+								stElec.bindLong(1, testSubj.pkey);
+								stElec.bindLong(2, elecSubj.pkey);
+								stElec.execute();	
+								
+								stSubj.clearBindings();
+								stSubj.bindLong(1, elecSubj.pkey);
+								stSubj.bindString(2, elecSubj.code);
+								stSubj.bindString(3, elecSubj.name);
+								stSubj.execute(); stSubj.execute();
+							}
+						}
+					}
+				}
+				eLearnDb.setTransactionSuccessful();
+				eLearnDb.endTransaction();
+				
+				
+				//eLearnDb.execSQL("INSERT INTO TestTable VALUES " + 
+				//			"('VallarNew', 'Justin', 20)");
+				
+				//rawQuery
+				//eLearnDb.
+				//Cursor c = eLearnDb.rawQuery("SELECT * FROM TestTable", null);
+				//while(c.moveToNext()) {
+				//	Log.d("JUS!", c.getString(c.getColumnIndex("LastName")));
+				//}
+				//Close database.
+				eLearnDb.close();
 				
 				//Log.d("JUS!", curriculum.select(SELECTOR_YEAR).html());
 			} else {

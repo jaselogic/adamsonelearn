@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,8 +52,10 @@ public class CurriculumFragment extends Fragment {
 		}
 		
 		@Override
-		public Fragment getItem(int arg0) {
-			return new CurriculumPageFragment.YearSelectFragment();
+		public Fragment getItem(int position) {
+			if(position == 0)
+				return new CurriculumPageFragment.YearSelectFragment();
+			return new HomePageFragment.UpdatesFragment();
 		}
 	}
 }

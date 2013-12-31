@@ -14,6 +14,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -164,7 +165,7 @@ public class Dashboard extends ActionBarActivity {
 		// Insert fragment to content frame
 		FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment)
-        .addToBackStack(null).commit();
+        		.commit();
         
         // Set item checked in drawer, then close drawer
         lvDrawer.setItemChecked(p.ordinal(), true);
