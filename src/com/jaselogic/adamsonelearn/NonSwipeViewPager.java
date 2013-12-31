@@ -19,12 +19,17 @@ public class NonSwipeViewPager extends ViewPager {
 	
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent arg0) {
-		return false;
+		if(getCurrentItem() == 0)
+			return false;
+		return super.onInterceptTouchEvent(arg0);
 	}
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent arg0) {
-		// TODO Auto-generated method stub
-		return false;
+		if(getCurrentItem() == 0)
+			return false;
+		return super.onTouchEvent(arg0);
 	}
+	
+	
 }

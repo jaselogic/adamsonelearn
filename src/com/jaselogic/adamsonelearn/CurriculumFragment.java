@@ -53,8 +53,9 @@ public class CurriculumFragment extends Fragment {
 		
 		@Override
 		public Fragment getItem(int position) {
-			if(position == 0)
+			if(position == 0) {
 				return new CurriculumPageFragment.YearSelectFragment();
+			}
 			return new HomePageFragment.UpdatesFragment();
 		}
 	}

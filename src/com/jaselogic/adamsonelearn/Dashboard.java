@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -33,6 +34,9 @@ public class Dashboard extends ActionBarActivity {
 	
 	public String cookie;
 	public Bundle studinfo;
+	
+	private Page currentPage;
+	private Fragment fragment;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -149,10 +153,26 @@ public class Dashboard extends ActionBarActivity {
             displayPage(Page.values()[position]);
         }
     }
+    
+    //ADDS "BACKSTACK" FUNCTIONALITY
+    @Override
+    public void onBackPressed() {
+    	switch(currentPage) {
+    		case CURRICULUM:
+    			ViewPager pager = (ViewPager) findViewById(R.id.curriculum_pager);
+    			if(pager.getCurrentItem() == 1) {
+    				pager.setCurrentItem(0, true);
+    			} else super.onBackPressed();
+    			break;
+    		default:
+    			super.onBackPressed();
+    	}
+    }
 	
 	//displays page fragment
 	private void displayPage(Page p) {
-		Fragment fragment = null;
+		fragment = null;
+		currentPage = p;
 		switch(p) {
 			case HOME:
 				fragment = new HomeFragment();

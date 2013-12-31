@@ -15,10 +15,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.jaselogic.adamsonelearn.DocumentManager.DocumentCookie;
 import com.jaselogic.adamsonelearn.DocumentManager.ResponseReceiver;
@@ -29,12 +31,33 @@ class CurriculumPageFragment {
 			implements ResponseReceiver {
 		public final static String SELECTOR_CURRICULUM_PAGE = "div.contentcontainer2 > table > tbody > tr > td:nth-of-type(2) > div:nth-of-type(3) div";
 		public final static String SELECTOR_YEAR = "div[style*=background:#FF9]";
+		public final static String[] YEAR_NAMES = {
+			"First Year",
+			"Second Year",
+			"Third Year",
+			"Fourth Year",
+			"Fifth Year"
+		};
+		
+		public final static String[] SEMESTER_NAMES = {
+			"First Semester",
+			"Second Semester",
+			"Summer"
+		};
+		
+		private ViewPager parentViewPager;
 		
 		private String cookie;
 		private YearSelectAdapter adapter;
 		private ArrayList<YearSelectListItem> yearArrayList;
 		
 		private Curriculum mCurriculum = new Curriculum();
+				
+		@Override
+		public void onListItemClick(ListView l, View v, int position, long id) {
+			// TODO Auto-generated method stub
+			parentViewPager.setCurrentItem(1);
+		}
 		
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,6 +75,9 @@ class CurriculumPageFragment {
 			//TODO: remove strings stdno pw
 			new DocumentManager.DownloadDocumentTask(YearSelectFragment.this, 
 				DocumentManager.PAGE_CURRICULUM, cookie).execute("stdno", "pw");
+			
+			//get parent viewpager
+			parentViewPager = (ViewPager) getActivity().findViewById(R.id.curriculum_pager);
 			
 			return pageRootView;
 		}
@@ -262,6 +288,16 @@ class CurriculumPageFragment {
 				
 				//Close database.
 				eLearnDb.close();
+				
+				//initialize year select
+				for(int i = 0; i < yr; i++) {
+					YearSelectListItem yearItem = new YearSelectListItem();
+					yearItem.year = YEAR_NAMES[i];
+					yearItem.imageResId = R.drawable.ic_drawer;
+					yearArrayList.add(yearItem);
+				}
+				
+				adapter.notifyDataSetChanged();
 
 			} else {
 				Log.d("JUS!", "WALANG DOCUMENT");
