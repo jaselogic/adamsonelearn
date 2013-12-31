@@ -28,7 +28,7 @@ public class CurrDisplayAdapter extends BaseAdapter {
     
     @Override
     public int getViewTypeCount() {
-    	return 4;
+    	return 3;
     }
     
     
@@ -80,6 +80,7 @@ public class CurrDisplayAdapter extends BaseAdapter {
             		holder.unitsText = (TextView) view.findViewById(R.id.curr_elective_unitstext);
             		holder.prereqText = (TextView) view.findViewById(R.id.curr_elective_prereqtext);
             		holder.coreqText = (TextView) view.findViewById(R.id.curr_elective_coreqtext);
+            		holder.elecText = (TextView) view.findViewById(R.id.curr_elective_electext);
             		break;
             }
             

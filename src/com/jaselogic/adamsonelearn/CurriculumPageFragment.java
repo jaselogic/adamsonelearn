@@ -46,12 +46,6 @@ class CurriculumPageFragment {
 			"Fifth Year"
 		};
 		
-		public final static String[] SEMESTER_NAMES = {
-			"First Semester",
-			"Second Semester",
-			"Summer"
-		};
-		
 		private NonSwipeViewPager parentViewPager;
 		
 		private String cookie;
@@ -296,7 +290,7 @@ class CurriculumPageFragment {
 				for(int i = 0; i < yr; i++) {
 					YearSelectListItem yearItem = new YearSelectListItem();
 					yearItem.year = YEAR_NAMES[i];
-					yearItem.imageResId = R.drawable.ic_drawer;
+					yearItem.imageResId = R.drawable.ic_next;
 					yearArrayList.add(yearItem);
 				}
 				
@@ -361,6 +355,13 @@ class CurriculumPageFragment {
 		private CurrDisplayAdapter adapter;
 		private NonSwipeViewPager parentViewPager;
 		
+		public final static String[] SEMESTER_NAMES = {
+			"No such semester",
+			"First Semester",
+			"Second Semester",
+			"Summer"
+		};
+		
 		@Override
 		public void onResume() {
 			// TODO Auto-generated method stub
@@ -386,26 +387,91 @@ class CurriculumPageFragment {
 				SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
 								
 				//perform query
-				Cursor c = eLearnDb.rawQuery(
-						"SELECT * FROM SubjTable WHERE YEAR = ?",
-						new String[] {page});
-				
-				while(c.moveToNext()) {
-					//Log.d("JUS!", c.getString(c.getColumnIndex("SubjName")));
-					CurrDisplayListItem tempItem = new CurrDisplayListItem();
-					tempItem.mainText = c.getString(c.getColumnIndex("SubjName"));
-					tempItem.viewType = ItemType.ITEM_TITLE;
-					currArrayList.add(tempItem);
+				for(int semester = 1; semester <=3; semester++ ) {
+					Cursor c = eLearnDb.rawQuery(
+							"SELECT * FROM SubjTable WHERE Year = ? AND Semester = ?",
+							new String[] {page, String.valueOf(semester)});
+					
+					CurrDisplayListItem tempItem;
+					
+					//add titler
+					if(c.getCount() > 0) {
+						tempItem = new CurrDisplayListItem();
+						tempItem.mainText = SEMESTER_NAMES[semester].toUpperCase();
+						tempItem.viewType = ItemType.ITEM_TITLE;
+						currArrayList.add(tempItem);
+					}
+					
+					while(c.moveToNext()) {
+						tempItem = new CurrDisplayListItem();
+						tempItem.mainText = c.getString(c.getColumnIndex("SubjName"));
+						tempItem.unitsText = "Units: " + c.getString(c.getColumnIndex("Units"));
+						
+						String subjId = String.valueOf(c.getInt(c.getColumnIndex("Id")));
+						//Check for prerequisites.
+						if(c.getInt(c.getColumnIndex("HasPrereq")) == 1) {
+							Cursor curPrereq = eLearnDb.rawQuery(
+								"SELECT SubjCode, SubjName FROM PrereqTable " + 
+							    "LEFT JOIN SubjTable ON Id=PrereqId WHERE " + 
+								"SubjId = ?", new String[] {subjId});
+							
+							StringBuilder sb = new StringBuilder();
+							while(curPrereq.moveToNext()) {
+								sb.append(curPrereq.getString(curPrereq.getColumnIndex("SubjName")));
+								if(!curPrereq.isLast()) {
+									sb.append("\n");
+								}
+							}
+							tempItem.prereqText = sb.toString();
+						} else {
+							tempItem.prereqText = "None";
+						}
+						
+						//Check for corequisites.
+						if(c.getInt(c.getColumnIndex("HasCoreq")) == 1) {
+							Cursor curCoreq = eLearnDb.rawQuery(
+								"SELECT SubjCode, SubjName FROM CoreqTable " + 
+							    "LEFT JOIN SubjTable ON Id=CoreqId WHERE " + 
+								"SubjId = ?", new String[] {subjId});
+							
+							StringBuilder sb = new StringBuilder();
+							while(curCoreq.moveToNext()) {
+								sb.append(curCoreq.getString(curCoreq.getColumnIndex("SubjName")));
+								if(!curCoreq.isLast()) {
+									sb.append("\n");
+								}
+							}
+							tempItem.coreqText = sb.toString();
+						} else {
+							tempItem.coreqText = "None";
+						}
+						
+						//Check for electives.
+						if(c.getInt(c.getColumnIndex("HasElec")) == 1) {
+							tempItem.viewType = ItemType.ITEM_ELECTIVE;
+							Cursor curElec = eLearnDb.rawQuery(
+								"SELECT SubjCode, SubjName FROM ElecTable " + 
+							    "LEFT JOIN SubjTable ON Id=ElecId WHERE " + 
+								"SubjId = ?", new String[] {subjId});
+							
+							StringBuilder sb = new StringBuilder();
+							while(curElec.moveToNext()) {
+								sb.append(curElec.getString(curElec.getColumnIndex("SubjName")));
+								if(!curElec.isLast()) {
+									sb.append("\n");
+								}
+							}
+							tempItem.elecText = sb.toString();
+						} else {
+							tempItem.elecText = "None";
+							tempItem.viewType = ItemType.ITEM_REGULAR;
+						}
+						currArrayList.add(tempItem);
+					}
 				}
 				
 				eLearnDb.close();
-				/*
-				CurrDisplayListItem tempItem = new CurrDisplayListItem();
-				tempItem.mainText = "Page " + String.valueOf(page);
-				tempItem.viewType = ItemType.ITEM_TITLE;
-				currArrayList.add(tempItem);
-				*/
-				
+
 				adapter.notifyDataSetChanged();
 			}
 		};
