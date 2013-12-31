@@ -64,7 +64,7 @@ class CurriculumPageFragment {
 		public void onListItemClick(ListView l, View v, int position, long id) {
 			// TODO Auto-generated method stub
 			Intent intent = new Intent("page-change-event");
-			intent.putExtra("page", position);
+			intent.putExtra("page", String.valueOf(position + 1));
 			LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
 			parentViewPager.setCurrentItem(1);
 		}
@@ -288,13 +288,7 @@ class CurriculumPageFragment {
 				}
 				eLearnDb.setTransactionSuccessful();
 				eLearnDb.endTransaction();
-				
-
-				Cursor c = eLearnDb.rawQuery("SELECT * FROM SubjTable", null);
-				while(c.moveToNext()) {
-					Log.d("JUS!", c.getString(c.getColumnIndex("SubjName")));
-				}
-				
+							
 				//Close database.
 				eLearnDb.close();
 				
@@ -380,11 +374,38 @@ class CurriculumPageFragment {
 		private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				int message = intent.getIntExtra("page", 1);
+				//TODO: EXTRACT DATA FROM DB ACCORDING TO PAGE.
+				String page = intent.getStringExtra("page");
+				
+				//TODO: DO THIS ON ASYNCTASK
+				//clear current list
+				currArrayList.clear();
+				adapter.notifyDataSetChanged();
+				
+				//Assert database and tables have been created.
+				SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
+								
+				//perform query
+				Cursor c = eLearnDb.rawQuery(
+						"SELECT * FROM SubjTable WHERE YEAR = ?",
+						new String[] {page});
+				
+				while(c.moveToNext()) {
+					//Log.d("JUS!", c.getString(c.getColumnIndex("SubjName")));
+					CurrDisplayListItem tempItem = new CurrDisplayListItem();
+					tempItem.mainText = c.getString(c.getColumnIndex("SubjName"));
+					tempItem.viewType = ItemType.ITEM_TITLE;
+					currArrayList.add(tempItem);
+				}
+				
+				eLearnDb.close();
+				/*
 				CurrDisplayListItem tempItem = new CurrDisplayListItem();
-				tempItem.mainText = "Page " + String.valueOf(message);
+				tempItem.mainText = "Page " + String.valueOf(page);
 				tempItem.viewType = ItemType.ITEM_TITLE;
 				currArrayList.add(tempItem);
+				*/
+				
 				adapter.notifyDataSetChanged();
 			}
 		};
