@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 class HomePageFragment {
 	//Page fragment class
 	public static class UpdatesFragment extends ListFragment implements ResponseReceiver {
+		//TODO: change to private final static
 		public final static String SELECTOR_UPDATES_PAGE = "tr";
 		public final static String SELECTOR_SUBJECT = "div > div:nth-of-type(1) span";
 		public final static String SELECTOR_TITLE = "div > div:nth-of-type(2) span";
@@ -38,7 +39,7 @@ class HomePageFragment {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			View pageRootView = inflater.inflate(R.layout.fragment_updates, 
+			View pageRootView = inflater.inflate(R.layout.fragment_listview, 
 					container, false);
 				
 			updateArrayList = new ArrayList<UpdatesListItem>();	
@@ -100,7 +101,7 @@ class HomePageFragment {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			View pageRootView = inflater.inflate(R.layout.fragment_subjects, 
+			View pageRootView = inflater.inflate(R.layout.fragment_listview, 
 					container, false);
 			subjectArrayList = new ArrayList<SubjectListItem>();	
 			adapter = new SubjectListAdapter(getActivity(), subjectArrayList);
