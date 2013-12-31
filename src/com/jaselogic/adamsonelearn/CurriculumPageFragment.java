@@ -9,12 +9,17 @@ import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +27,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.jaselogic.adamsonelearn.CurrDisplayAdapter.CurrDisplayListItem;
+import com.jaselogic.adamsonelearn.CurrDisplayAdapter.ItemType;
 import com.jaselogic.adamsonelearn.DocumentManager.DocumentCookie;
 import com.jaselogic.adamsonelearn.DocumentManager.ResponseReceiver;
 import com.jaselogic.adamsonelearn.YearSelectAdapter.YearSelectListItem;
@@ -45,7 +52,7 @@ class CurriculumPageFragment {
 			"Summer"
 		};
 		
-		private ViewPager parentViewPager;
+		private NonSwipeViewPager parentViewPager;
 		
 		private String cookie;
 		private YearSelectAdapter adapter;
@@ -56,10 +63,11 @@ class CurriculumPageFragment {
 		@Override
 		public void onListItemClick(ListView l, View v, int position, long id) {
 			// TODO Auto-generated method stub
+			Intent intent = new Intent("page-change-event");
+			intent.putExtra("page", position);
+			LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
 			parentViewPager.setCurrentItem(1);
 		}
-		
-		
 		
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -79,7 +87,7 @@ class CurriculumPageFragment {
 				DocumentManager.PAGE_CURRICULUM, cookie).execute("stdno", "pw");
 			
 			//get parent viewpager
-			parentViewPager = (ViewPager) getActivity().findViewById(R.id.curriculum_pager);
+			parentViewPager = (NonSwipeViewPager) getActivity().findViewById(R.id.curriculum_pager);
 			
 			return pageRootView;
 		}
@@ -218,7 +226,6 @@ class CurriculumPageFragment {
 				//Iterate insert
 				eLearnDb.beginTransaction();
 				Iterator<ArrayList<Subject>> subjItr = mCurriculum.iterator();
-				int yrCnt = 1;
 				while(subjItr.hasNext()) {
 					ArrayList<Subject> subjList = subjItr.next();
 					//Log.d("YEAR!", String.valueOf(yrCnt++));
@@ -354,8 +361,40 @@ class CurriculumPageFragment {
 		}
 	}
 	
-	public static class CurrDisplayFragment extends ListFragment
-			implements ResponseReceiver {
+	public static class CurrDisplayFragment extends ListFragment {
+		
+		private ArrayList<CurrDisplayListItem> currArrayList;
+		private CurrDisplayAdapter adapter;
+		private NonSwipeViewPager parentViewPager;
+		
+		@Override
+		public void onResume() {
+			// TODO Auto-generated method stub
+			super.onResume();
+			
+			LocalBroadcastManager.getInstance(getActivity())
+				.registerReceiver(mMessageReceiver, new IntentFilter("page-change-event"));
+			
+		}
+		
+		private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				int message = intent.getIntExtra("page", 1);
+				CurrDisplayListItem tempItem = new CurrDisplayListItem();
+				tempItem.mainText = "Page " + String.valueOf(message);
+				tempItem.viewType = ItemType.ITEM_TITLE;
+				currArrayList.add(tempItem);
+				adapter.notifyDataSetChanged();
+			}
+		};
+		
+		@Override
+		public void onPause() {
+			super.onPause();
+			LocalBroadcastManager.getInstance(getActivity())
+				.unregisterReceiver(mMessageReceiver);
+		};
 		
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -363,28 +402,17 @@ class CurriculumPageFragment {
 			View pageRootView = inflater.inflate(R.layout.fragment_listview, 
 					container, false);
 				
-			yearArrayList = new ArrayList<YearSelectListItem>();	
-			adapter = new YearSelectAdapter(getActivity(), yearArrayList);
+			currArrayList = new ArrayList<CurrDisplayListItem>();	
+			adapter = new CurrDisplayAdapter(getActivity(), currArrayList);
 			setListAdapter(adapter);
-			
-			//get original cookie
-			cookie = ((Dashboard)getActivity()).cookie;
+
 			Log.d("CREATE", "CREATE");
-			//TODO: remove strings stdno pw
-			new DocumentManager.DownloadDocumentTask(YearSelectFragment.this, 
-				DocumentManager.PAGE_CURRICULUM, cookie).execute("stdno", "pw");
+			//get results with async task
 			
 			//get parent viewpager
-			parentViewPager = (ViewPager) getActivity().findViewById(R.id.curriculum_pager);
-			
+			parentViewPager = (NonSwipeViewPager) getActivity().findViewById(R.id.curriculum_pager);
+						
 			return pageRootView;
 		}
-		@Override
-		public void onResourceReceived(DocumentCookie result)
-				throws IOException {
-			// TODO Auto-generated method stub
-			
-		}
-		
 	}
 }

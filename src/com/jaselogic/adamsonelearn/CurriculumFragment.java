@@ -56,7 +56,7 @@ public class CurriculumFragment extends Fragment {
 			if(position == 0) {
 				return new CurriculumPageFragment.YearSelectFragment();
 			}
-			return new HomePageFragment.UpdatesFragment();
+			return new CurriculumPageFragment.CurrDisplayFragment();
 		}
 	}
 }

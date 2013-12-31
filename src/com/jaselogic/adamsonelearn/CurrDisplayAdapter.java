@@ -67,9 +67,6 @@ public class CurrDisplayAdapter extends BaseAdapter {
             		view = mLayoutInflater.inflate(R.layout.sem_title, viewGroup, false);
             		holder.mainText = (TextView) view.findViewById(R.id.sem_title_text);
             		break;
-            	case ITEM_SEPARATOR:
-            		view = mLayoutInflater.inflate(R.layout.curr_separator, viewGroup, false);
-            		break;
             	case ITEM_REGULAR:
             		view = mLayoutInflater.inflate(R.layout.curr_regular_item, viewGroup, false);
             		holder.mainText = (TextView) view.findViewById(R.id.curr_regular_maintext);
@@ -104,8 +101,6 @@ public class CurrDisplayAdapter extends BaseAdapter {
     				holder.unitsText.setText(listItem.unitsText);
     				holder.prereqText.setText(listItem.prereqText);
     				holder.coreqText.setText(listItem.coreqText);
-    				break;
-    			case ITEM_SEPARATOR:
     				break;
     			case ITEM_ELECTIVE:
     				holder.mainText.setText(listItem.mainText);
@@ -142,7 +137,6 @@ public class CurrDisplayAdapter extends BaseAdapter {
 	
 	public enum ItemType {
 		ITEM_TITLE,
-		ITEM_SEPARATOR,
 		ITEM_REGULAR,
 		ITEM_ELECTIVE
 	}
