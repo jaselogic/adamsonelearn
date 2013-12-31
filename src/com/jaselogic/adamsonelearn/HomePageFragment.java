@@ -39,7 +39,7 @@ class HomePageFragment {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			View pageRootView = inflater.inflate(R.layout.fragment_updates, 
+			View pageRootView = inflater.inflate(R.layout.fragment_listview, 
 					container, false);
 				
 			updateArrayList = new ArrayList<UpdatesListItem>();	
@@ -101,7 +101,7 @@ class HomePageFragment {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			View pageRootView = inflater.inflate(R.layout.fragment_subjects, 
+			View pageRootView = inflater.inflate(R.layout.fragment_listview, 
 					container, false);
 			subjectArrayList = new ArrayList<SubjectListItem>();	
 			adapter = new SubjectListAdapter(getActivity(), subjectArrayList);

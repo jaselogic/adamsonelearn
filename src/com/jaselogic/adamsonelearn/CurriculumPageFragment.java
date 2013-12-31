@@ -39,7 +39,7 @@ class CurriculumPageFragment {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			View pageRootView = inflater.inflate(R.layout.fragment_updates, 
+			View pageRootView = inflater.inflate(R.layout.fragment_listview, 
 					container, false);
 				
 			yearArrayList = new ArrayList<YearSelectListItem>();	
