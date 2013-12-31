@@ -85,8 +85,6 @@ class CurriculumPageFragment {
 							sem = 1;
 							mCurriculum.add(new ArrayList<Subject>());
 						}
-						Log.d("YEAR", String.valueOf(yr));
-						Log.d("SEM", String.valueOf(sem));
 						
 						//skip div with CCC
 						itr.next();
@@ -96,18 +94,7 @@ class CurriculumPageFragment {
 							if(innest.hasClass("curr")) {
 								//GET PK, SUBJCODE, SUBJNAME, UNITS, PREREQ, COREQ
 								Elements item = innest.select(":root > table > tbody > tr");
-								/*
-								Log.d("SUBJ",
-										item.first().select("td:nth-of-type(1)").text().trim() + " " +
-										item.first().select("td:nth-of-type(2)").text().trim() + " " +
-										item.first().select("td:nth-of-type(3)").text().trim() + " " +
-										item.first().select("td:nth-of-type(4)").text().trim() + " " +
-										"<" +
-										item.first().select("td:nth-of-type(5) span").text().trim()
-										+">" + " " +
-										"[" +
-										item.first().select("td:nth-of-type(6) span").text().trim()
-										+ "]");*/
+
 								//create a new subject object
 								Subject subj = new Subject();
 								subj.year = yr;
@@ -147,10 +134,7 @@ class CurriculumPageFragment {
 									subj.hasElec = elecItr.hasNext();
 									while(elecItr.hasNext()) {
 										Element elec = elecItr.next();
-										Log.d("ELEC", elec.select("span:nth-of-type(1)").text().trim() + " " + 
-												elec.select("span:nth-of-type(2)").text().trim() + " " + 
-												elec.ownText().trim() );
-										
+
 										Subject elecSubj = new Subject();
 										elecSubj.pkey = Integer.parseInt(elec.select("span:nth-of-type(1)").text().trim());
 										elecSubj.code = elec.select("span:nth-of-type(2)").text().trim();
@@ -158,7 +142,6 @@ class CurriculumPageFragment {
 										subj.electiveList.add(elecSubj);
 									}
 								}
-								
 								//add the subject to the current arraylist<subject>
 								mCurriculum.getYear(yr).add(subj);
 							}
@@ -166,8 +149,6 @@ class CurriculumPageFragment {
 						//Log.d("SUBJ", msg)
 					}
 				}
-				//LOGTEST HERE
-
 				
 				//DATABASE
 				//Open database, or create if not yet created
@@ -205,14 +186,14 @@ class CurriculumPageFragment {
 				SQLiteStatement stPrereq = eLearnDb.compileStatement(sqlPrereq);
 				SQLiteStatement stCoreq = eLearnDb.compileStatement(sqlCoreq);
 				SQLiteStatement stElec = eLearnDb.compileStatement(sqlElec);
-				Log.d("CURRI", "CURRI");							
+
 				//Iterate insert
 				eLearnDb.beginTransaction();
 				Iterator<ArrayList<Subject>> subjItr = mCurriculum.iterator();
 				int yrCnt = 1;
 				while(subjItr.hasNext()) {
 					ArrayList<Subject> subjList = subjItr.next();
-					Log.d("YEAR!", String.valueOf(yrCnt++));
+					//Log.d("YEAR!", String.valueOf(yrCnt++));
 					Iterator<Subject> subjItrTest = subjList.iterator();
 					
 					while(subjItrTest.hasNext()) {
@@ -260,12 +241,12 @@ class CurriculumPageFragment {
 								stElec.bindLong(1, testSubj.pkey);
 								stElec.bindLong(2, elecSubj.pkey);
 								stElec.execute();	
-								
+																
 								stSubj.clearBindings();
 								stSubj.bindLong(1, elecSubj.pkey);
 								stSubj.bindString(2, elecSubj.code);
 								stSubj.bindString(3, elecSubj.name);
-								stSubj.execute(); stSubj.execute();
+								stSubj.execute();
 							}
 						}
 					}
@@ -273,20 +254,15 @@ class CurriculumPageFragment {
 				eLearnDb.setTransactionSuccessful();
 				eLearnDb.endTransaction();
 				
+
+				Cursor c = eLearnDb.rawQuery("SELECT * FROM SubjTable", null);
+				while(c.moveToNext()) {
+					Log.d("JUS!", c.getString(c.getColumnIndex("SubjName")));
+				}
 				
-				//eLearnDb.execSQL("INSERT INTO TestTable VALUES " + 
-				//			"('VallarNew', 'Justin', 20)");
-				
-				//rawQuery
-				//eLearnDb.
-				//Cursor c = eLearnDb.rawQuery("SELECT * FROM TestTable", null);
-				//while(c.moveToNext()) {
-				//	Log.d("JUS!", c.getString(c.getColumnIndex("LastName")));
-				//}
 				//Close database.
 				eLearnDb.close();
-				
-				//Log.d("JUS!", curriculum.select(SELECTOR_YEAR).html());
+
 			} else {
 				Log.d("JUS!", "WALANG DOCUMENT");
 			}
