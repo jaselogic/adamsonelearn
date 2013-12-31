@@ -59,6 +59,8 @@ class CurriculumPageFragment {
 			parentViewPager.setCurrentItem(1);
 		}
 		
+		
+		
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
@@ -350,5 +352,39 @@ class CurriculumPageFragment {
 				return this.get(year - 1);
 			}
 		}
+	}
+	
+	public static class CurrDisplayFragment extends ListFragment
+			implements ResponseReceiver {
+		
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View pageRootView = inflater.inflate(R.layout.fragment_listview, 
+					container, false);
+				
+			yearArrayList = new ArrayList<YearSelectListItem>();	
+			adapter = new YearSelectAdapter(getActivity(), yearArrayList);
+			setListAdapter(adapter);
+			
+			//get original cookie
+			cookie = ((Dashboard)getActivity()).cookie;
+			Log.d("CREATE", "CREATE");
+			//TODO: remove strings stdno pw
+			new DocumentManager.DownloadDocumentTask(YearSelectFragment.this, 
+				DocumentManager.PAGE_CURRICULUM, cookie).execute("stdno", "pw");
+			
+			//get parent viewpager
+			parentViewPager = (ViewPager) getActivity().findViewById(R.id.curriculum_pager);
+			
+			return pageRootView;
+		}
+		@Override
+		public void onResourceReceived(DocumentCookie result)
+				throws IOException {
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
 }
