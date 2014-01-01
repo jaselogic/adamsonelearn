@@ -13,13 +13,17 @@ import com.jaselogic.adamsonelearn.DrawerListAdapter.DrawerListItem.ItemType;
 import com.jaselogic.adamsonelearn.SubjectListAdapter.SubjectListItem;
 import com.jaselogic.adamsonelearn.UpdatesListAdapter.UpdatesListItem;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.LocalBroadcastManager;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -238,6 +242,8 @@ class HomePageFragment {
 			//close the database
 			eLearnDb.close();
 			
+			//Broadcast subject-list-ready event
+			broadcastListReady();
 			
 			//open database.
 			SQLiteDatabase eLearnDbRead = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
@@ -276,6 +282,11 @@ class HomePageFragment {
 			eLearnDbRead.close();
 			
 			adapter.notifyDataSetChanged();
+		}
+		
+		public void broadcastListReady() {
+			Intent intent = new Intent("subject-list-ready");
+			LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
 		}
 		
 		//TODO: SEPARATE THIS IN HELPER CLASS.
@@ -360,8 +371,34 @@ class HomePageFragment {
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
 			ViewGroup pageRootView = (ViewGroup) inflater.inflate(
-					R.layout.fragment_schedule, container, false);
+					R.layout.fragment_listview, container, false);
 			return pageRootView;
-		}		
+		}
+		
+		//listen to subject list ready event
+		@Override
+		public void onResume() {
+			// TODO Auto-generated method stub
+			super.onResume();
+			
+			LocalBroadcastManager.getInstance(getActivity())
+				.registerReceiver(mMessageReceiver, new IntentFilter("subject-list-ready"));
+		}
+		
+		private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+			
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				// TODO do list population here
+				Log.d("POPULATE", "I LIKE TO POPULATE");
+			}
+		};
+		
+		@Override
+		public void onPause() {
+			super.onPause();
+			LocalBroadcastManager.getInstance(getActivity())
+				.unregisterReceiver(mMessageReceiver);
+		};
 	}
 }
