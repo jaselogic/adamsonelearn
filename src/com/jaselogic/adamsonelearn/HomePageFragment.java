@@ -199,7 +199,7 @@ class HomePageFragment {
 				
 				String daySlotString = subjectItem.schedule
 						.substring(0, firstSpaceIndex);
-				int daySlot = convertStringToIntDaySlot(daySlotString);
+				int daySlot = ScheduleHelper.convertStringToIntDaySlot(daySlotString);
 				
 				//extract timeslots
 				String timeSlotString = subjectItem.schedule = subjectItem.schedule
@@ -213,8 +213,8 @@ class HomePageFragment {
 				//TODO: Refactor
 				String startString = timeSlotString.substring(0, 5);
 				String endString = timeSlotString.substring(6, 11);
-				int startSlot = convertStringToIntSlot(startString);
-				int endSlot = convertStringToIntSlot(endString);
+				int startSlot = ScheduleHelper.convertStringToIntSlot(startString);
+				int endSlot = ScheduleHelper.convertStringToIntSlot(endString);
 
 				//extract room
 				String room = subjectItem.schedule.substring(nextSpaceIndex);
@@ -263,11 +263,11 @@ class HomePageFragment {
 				subjectItem.teacher = c.getString(c.getColumnIndex("ProfName"));
 				
 				StringBuilder sbSchedule = new StringBuilder(
-						convertIntToStringDaySlot(c.getInt(c.getColumnIndex("DaySlot")))
+						ScheduleHelper.convertIntToStringDaySlot(c.getInt(c.getColumnIndex("DaySlot")))
 						);
 				sbSchedule.append(" ");
 				sbSchedule.append(
-						convertIntToStringSlot(
+						ScheduleHelper.convertIntToStringSlot(
 								c.getInt(c.getColumnIndex("TimeStart")),
 								c.getInt(c.getColumnIndex("TimeEnd")) )
 						);
@@ -289,81 +289,6 @@ class HomePageFragment {
 			LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
 		}
 		
-		//TODO: SEPARATE THIS IN HELPER CLASS.
-		public int convertStringToIntSlot(String timeSlotString) {
-			int hour = Integer.parseInt(timeSlotString.substring(0, 2));
-			int slot = -1;
-			
-			slot = (hour - 7) * 2;
-			if (Integer.parseInt(timeSlotString.substring(3, 5)) == 30)
-				slot++;
-			
-			return slot;
-		}
-		
-		public String convertIntToStringSlot(int start, int end) {
-			StringBuilder sb = new StringBuilder(
-					String.format( "%02d",((start / 2) + 7) )
-					);
-			
-			sb.append(":");
-			sb.append( (start % 2) == 0 ? "00" : "30" );
-			sb.append("-");
-			sb.append(
-					String.format( "%02d",((end / 2) + 7) )
-					);
-			sb.append(":");
-			sb.append( (end % 2) == 0 ? "00" : "30" );
-			
-			return sb.toString();
-		}
-		
-		public int convertStringToIntDaySlot(String daySlotString) {
-			int daySlot = 0;
-			final String[] daySlotPatterns = new String[] {
-					"M", "T[WTu]", "W", "Th", "F", "S"
-				};
-				
-			for(int j = 0; j < 6; j++) {
-				Pattern pattern = Pattern.compile(daySlotPatterns[j]);
-				if(pattern.matcher(daySlotString).find()) {
-					daySlot |= (1 << j);
-				}
-			}
-			return daySlot;
-		}
-		
-		public String convertIntToStringDaySlot(int slot) {
-			String res;
-			final String[] daySlotFull = new String[] {
-				"Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
-			};
-			final String[] daySlotShort = new String[] {
-				"M", "T", "W", "Th", "F", "S"
-			};
-			
-			Log.d("FULL", String.valueOf( (slot & (slot - 1)) == 0 ));
-			
-			//determine if power of two to decide if full or short
-			if( (slot & (slot - 1)) == 0 ) { // full
-				int c = 0;
-				while( (slot >>= 1) != 0) {
-					c++;
-				}
-				res = daySlotFull[c];
-			} else { //short
-				StringBuilder sb = new StringBuilder();
-				for(int c = 0; slot != 0; c++) {
-					if ( (slot & 1) == 1 ) {
-						sb.append(daySlotShort[c]);
-					}
-					slot >>= 1;
-				}
-				res = sb.toString();
-			}
-
-			return res;
-		}
 	}
 	
 	public static class TodayFragment extends Fragment {
@@ -391,14 +316,24 @@ class HomePageFragment {
 			public void onReceive(Context context, Intent intent) {
 				// TODO do list population here
 				Log.d("POPULATE", "I LIKE TO POPULATE");
+				LocalBroadcastManager.getInstance(getActivity())
+				.unregisterReceiver(mMessageReceiver);
 			}
 		};
 		
 		@Override
 		public void onPause() {
-			super.onPause();
 			LocalBroadcastManager.getInstance(getActivity())
-				.unregisterReceiver(mMessageReceiver);
+			.unregisterReceiver(mMessageReceiver);
+			super.onPause();
 		};
+		
+		@Override
+		public void onStop() {
+			LocalBroadcastManager.getInstance(getActivity())
+			.unregisterReceiver(mMessageReceiver);
+			super.onStop();
+			Log.d("STAHP", "STAHP");
+		}
 	}
 }
