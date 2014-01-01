@@ -12,6 +12,8 @@ import com.jaselogic.adamsonelearn.DrawerListAdapter.DrawerListItem.ItemType;
 import com.jaselogic.adamsonelearn.SubjectListAdapter.SubjectListItem;
 import com.jaselogic.adamsonelearn.UpdatesListAdapter.UpdatesListItem;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
@@ -129,11 +131,17 @@ class HomePageFragment {
 			Elements schedule = updates.select(SELECTOR_SCHEDULE);
 			Elements avatarSrc = updates.select(SELECTOR_AVATAR);
 
+			//open or create elearn database
+			SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
+			
+			//drop subject table if it exists
+			//eLearnDb.execSQL(sql)
+			
 			for(int i = 0; i < subject.size(); i++) {
 				SubjectListItem subjectItem = new SubjectListItem();
-				subjectItem.teacher = teacher.get(i).text();
-				subjectItem.subject = subject.get(i).text();
-				subjectItem.schedule = schedule.get(i).text();
+				subjectItem.teacher = teacher.get(i).text().trim();
+				subjectItem.subject = subject.get(i).text().trim();
+				subjectItem.schedule = schedule.get(i).text().trim();
 
 				String src = avatarSrc.get(i).attr("src");
 				subjectItem.avatarSrc = "http://learn.adamson.edu.ph/" + src.substring(3,
@@ -143,6 +151,9 @@ class HomePageFragment {
 			}
 			
 			adapter.notifyDataSetChanged();
+			
+			//close database.
+			eLearnDb.close();
 		}		
 	}
 	
