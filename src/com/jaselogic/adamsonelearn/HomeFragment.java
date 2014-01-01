@@ -18,7 +18,7 @@ class HomeFragment extends Fragment {
 	private static final String[] STR_TITLES = new String[] {
 		"Updates",
 		"Subjects",
-		"Schedule"
+		"Today"
 	};
 	
 	//pager view
@@ -38,6 +38,7 @@ class HomeFragment extends Fragment {
 		//create a new instance of ViewPager and PagerAdapter
 		mPager = (ViewPager) rootView.findViewById(R.id.home_pager);
 		mPagerAdapter = new HomePagerAdapter(getFragmentManager());
+		mPager.setOffscreenPageLimit(2);
 		mPager.setAdapter(mPagerAdapter);
 		
 		TabPageIndicator indicator = (TabPageIndicator) rootView.findViewById(R.id.viewpagerIndicator);
