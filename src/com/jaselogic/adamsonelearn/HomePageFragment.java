@@ -300,12 +300,12 @@ class HomePageFragment {
 			return pageRootView;
 		}
 		
+		
 		//listen to subject list ready event
 		@Override
 		public void onResume() {
 			// TODO Auto-generated method stub
 			super.onResume();
-			
 			LocalBroadcastManager.getInstance(getActivity())
 				.registerReceiver(mMessageReceiver, new IntentFilter("subject-list-ready"));
 		}
@@ -316,24 +316,16 @@ class HomePageFragment {
 			public void onReceive(Context context, Intent intent) {
 				// TODO do list population here
 				Log.d("POPULATE", "I LIKE TO POPULATE");
-				LocalBroadcastManager.getInstance(getActivity())
-				.unregisterReceiver(mMessageReceiver);
 			}
 		};
 		
 		@Override
 		public void onPause() {
+			// TODO Auto-generated method stub
+			Log.d("PAUSE", "PAUSE");
 			LocalBroadcastManager.getInstance(getActivity())
 			.unregisterReceiver(mMessageReceiver);
 			super.onPause();
-		};
-		
-		@Override
-		public void onStop() {
-			LocalBroadcastManager.getInstance(getActivity())
-			.unregisterReceiver(mMessageReceiver);
-			super.onStop();
-			Log.d("STAHP", "STAHP");
 		}
 	}
 }

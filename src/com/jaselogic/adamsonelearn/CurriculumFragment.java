@@ -30,7 +30,7 @@ public class CurriculumFragment extends Fragment {
 		//create the pageradapter instance
 		mViewPager = (NonSwipeViewPager) rootView
 				.findViewById(R.id.curriculum_pager);
-		mPagerAdapter = new CurriculumPagerAdapter(getFragmentManager());
+		mPagerAdapter = new CurriculumPagerAdapter(getChildFragmentManager());
 		mViewPager.setAdapter(mPagerAdapter);
 		
 		return rootView;
