@@ -63,7 +63,7 @@ class HomeFragment extends Fragment {
 				return new HomePageFragment.SubjectsFragment();
 			}
 			
-			return new HomePageFragment.ScheduleFragment();
+			return new HomePageFragment.TodayFragment();
 		}
 		
 		@Override

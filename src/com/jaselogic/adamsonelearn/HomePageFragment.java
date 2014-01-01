@@ -146,7 +146,7 @@ class HomePageFragment {
 		}		
 	}
 	
-	public static class ScheduleFragment extends Fragment {
+	public static class TodayFragment extends Fragment {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
