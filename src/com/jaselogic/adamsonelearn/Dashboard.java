@@ -113,7 +113,7 @@ public class Dashboard extends ActionBarActivity {
         
         //Display home page
         //TODO: Check this on save instance state
-        displayPage(Page.CURRICULUM);
+        displayPage(Page.HOME);
 	}
 	
 	//called via supportInvalidateOptionsMenu

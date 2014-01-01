@@ -183,7 +183,7 @@ class CurriculumPageFragment {
 				//DATABASE
 				//Open database, or create if not yet created
 				SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
-			
+				
 				//DROP TABLE IF IT EXISTS
 				eLearnDb.execSQL("DROP TABLE IF EXISTS CurrTable");
 				eLearnDb.execSQL("DROP TABLE IF EXISTS PrereqTable");
