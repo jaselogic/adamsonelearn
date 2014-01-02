@@ -183,15 +183,15 @@ class CurriculumPageFragment {
 				//DATABASE
 				//Open database, or create if not yet created
 				SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
-			
+				
 				//DROP TABLE IF IT EXISTS
-				eLearnDb.execSQL("DROP TABLE IF EXISTS SubjTable");
+				eLearnDb.execSQL("DROP TABLE IF EXISTS CurrTable");
 				eLearnDb.execSQL("DROP TABLE IF EXISTS PrereqTable");
 				eLearnDb.execSQL("DROP TABLE IF EXISTS CoreqTable");
 				eLearnDb.execSQL("DROP TABLE IF EXISTS ElecTable");
 							
 				//CREATE TABLES
-				eLearnDb.execSQL("CREATE TABLE SubjTable " + 
+				eLearnDb.execSQL("CREATE TABLE CurrTable " + 
 							"(Id INTEGER, SubjCode TEXT, SubjName TEXT, " + 
 							"Units INTEGER, Year INTEGER, Semester INTEGER, " +
 							"HasPrereq INTEGER, HasCoreq INTEGER, HasElec INTEGER);");
@@ -207,7 +207,7 @@ class CurriculumPageFragment {
 							"(SubjId INTEGER, ElecId INTEGER);");
 				
 				//INSERT MULTIPLE ITEMS.
-				String sqlSubj = "INSERT INTO SubjTable VALUES (?,?,?,?,?,?,?,?,?);";
+				String sqlSubj = "INSERT INTO CurrTable VALUES (?,?,?,?,?,?,?,?,?);";
 				String sqlPrereq = "INSERT INTO PrereqTable VALUES (?,?)";
 				String sqlCoreq = "INSERT INTO CoreqTable VALUES (?,?)";
 				String sqlElec = "INSERT INTO ElecTable VALUES (?,?)";
@@ -261,7 +261,7 @@ class CurriculumPageFragment {
 							}
 						}
 						
-						//IF HASELEC, add to ElecTable, then add the subject to the Subjtable
+						//IF HASELEC, add to ElecTable, then add the subject to the Currtable
 						if(testSubj.hasElec) {
 							Iterator<Subject> elecItr = testSubj.electiveList.iterator();
 							while(elecItr.hasNext()) {
@@ -389,7 +389,7 @@ class CurriculumPageFragment {
 				//perform query
 				for(int semester = 1; semester <=3; semester++ ) {
 					Cursor c = eLearnDb.rawQuery(
-							"SELECT * FROM SubjTable WHERE Year = ? AND Semester = ?",
+							"SELECT * FROM CurrTable WHERE Year = ? AND Semester = ?",
 							new String[] {page, String.valueOf(semester)});
 					
 					CurrDisplayListItem tempItem;
@@ -412,7 +412,7 @@ class CurriculumPageFragment {
 						if(c.getInt(c.getColumnIndex("HasPrereq")) == 1) {
 							Cursor curPrereq = eLearnDb.rawQuery(
 								"SELECT SubjCode, SubjName FROM PrereqTable " + 
-							    "LEFT JOIN SubjTable ON Id=PrereqId WHERE " + 
+							    "LEFT JOIN CurrTable ON Id=PrereqId WHERE " + 
 								"SubjId = ?", new String[] {subjId});
 							
 							StringBuilder sb = new StringBuilder();
@@ -431,7 +431,7 @@ class CurriculumPageFragment {
 						if(c.getInt(c.getColumnIndex("HasCoreq")) == 1) {
 							Cursor curCoreq = eLearnDb.rawQuery(
 								"SELECT SubjCode, SubjName FROM CoreqTable " + 
-							    "LEFT JOIN SubjTable ON Id=CoreqId WHERE " + 
+							    "LEFT JOIN CurrTable ON Id=CoreqId WHERE " + 
 								"SubjId = ?", new String[] {subjId});
 							
 							StringBuilder sb = new StringBuilder();
@@ -451,7 +451,7 @@ class CurriculumPageFragment {
 							tempItem.viewType = ItemType.ITEM_ELECTIVE;
 							Cursor curElec = eLearnDb.rawQuery(
 								"SELECT SubjCode, SubjName FROM ElecTable " + 
-							    "LEFT JOIN SubjTable ON Id=ElecId WHERE " + 
+							    "LEFT JOIN CurrTable ON Id=ElecId WHERE " + 
 								"SubjId = ?", new String[] {subjId});
 							
 							StringBuilder sb = new StringBuilder();
@@ -493,8 +493,6 @@ class CurriculumPageFragment {
 			adapter = new CurrDisplayAdapter(getActivity(), currArrayList);
 			setListAdapter(adapter);
 
-			Log.d("CREATE", "CREATE");
-			//get results with async task
 			
 			//get parent viewpager
 			parentViewPager = (NonSwipeViewPager) getActivity().findViewById(R.id.curriculum_pager);

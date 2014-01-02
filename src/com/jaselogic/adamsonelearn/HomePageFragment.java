@@ -2,6 +2,7 @@ package com.jaselogic.adamsonelearn;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 import org.jsoup.select.Elements;
 
@@ -10,12 +11,23 @@ import com.jaselogic.adamsonelearn.DocumentManager.ResponseReceiver;
 import com.jaselogic.adamsonelearn.DrawerListAdapter.DrawerListItem;
 import com.jaselogic.adamsonelearn.DrawerListAdapter.DrawerListItem.ItemType;
 import com.jaselogic.adamsonelearn.SubjectListAdapter.SubjectListItem;
+import com.jaselogic.adamsonelearn.TodayListAdapter.TodayListItem;
 import com.jaselogic.adamsonelearn.UpdatesListAdapter.UpdatesListItem;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.LocalBroadcastManager;
+import android.text.format.Time;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -129,30 +141,265 @@ class HomePageFragment {
 			Elements schedule = updates.select(SELECTOR_SCHEDULE);
 			Elements avatarSrc = updates.select(SELECTOR_AVATAR);
 
+			//open or create elearn database
+			SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
+									
+			//drop subject table if it exists
+			eLearnDb.execSQL("DROP TABLE IF EXISTS SubjTable");
+			
+			//create subj table
+
+			/*
+			 * DaySlots can be implemented as boolean type for each day
+			 * (hasMonday, hasTuesday etc..) but since there is no boolean
+			 * primitive type for SQLite and type affinity of boolean is an
+			 * 8-bit integer, it would consume more space than having a single
+			 * column for day slots.
+			 * Days are represented as a 6-bit integer
+			 * 0 bit when subject has no slot, otherwise 1
+			 * Monday starts at the least significant bit, up to 6th bit which is saturday
+			 * example:
+			 * for MWF subjects: 010101b = 21
+			 * for Sat subjects: 100000b = 32 
+			 * for subjects with Tuesday: xxxx1x or (dayslot | (1 << 1));
+			 * 
+			 * TimeStart is the time slot start per day with 0 = 7:00am
+			 * and increments for every 30mins. (e.g. 1 = 7:30, 2 = 8:00)
+			 * 
+			 * TimeEnd is the time slot end per day with 0 = 7:00am
+			 * and increments for every 30mins.
+			 */
+			eLearnDb.execSQL("CREATE TABLE SubjTable " +
+							"(SectionId INTEGER, SubjName TEXT, " +
+							"ProfName TEXT, DaySlot INTEGER, " + 
+							"TimeStart INTEGER, TimeEnd INTEGER, Room TEXT, " +
+							"AvatarSrc TEXT);");
+			
+			//SQL Statement
+			String sqlSubj = "INSERT INTO SubjTable VALUES (?,?,?,?,?,?,?,?);";
+			SQLiteStatement stSubj = eLearnDb.compileStatement(sqlSubj);
+						
+			//create a transaction to minimize database insertion times
+			eLearnDb.beginTransaction();
 			for(int i = 0; i < subject.size(); i++) {
 				SubjectListItem subjectItem = new SubjectListItem();
-				subjectItem.teacher = teacher.get(i).text();
-				subjectItem.subject = subject.get(i).text();
-				subjectItem.schedule = schedule.get(i).text();
+				subjectItem.teacher = teacher.get(i).text().trim();
+				subjectItem.subject = subject.get(i).text().trim();
+				subjectItem.schedule = schedule.get(i).text().trim();
+				
+				//get the index of ':' separator of subject and section id
+				int sepIndex = subjectItem.subject.indexOf(':');
+				//extract the section id from the subject
+				int sectionId = Integer.parseInt(subjectItem.subject
+						.substring(0, sepIndex - 1)
+						);
+				//extract the subject name
+				String subjName = subjectItem.subject.substring(sepIndex + 2);
+				
+				//extract the day slots			
+				//get the index of the first space
+				int firstSpaceIndex = subjectItem.schedule.indexOf(' ');
+				
+				String daySlotString = subjectItem.schedule
+						.substring(0, firstSpaceIndex);
+				int daySlot = ScheduleHelper.convertStringToIntDaySlot(daySlotString);
+				
+				//extract timeslots
+				String timeSlotString = subjectItem.schedule = subjectItem.schedule
+						.substring(firstSpaceIndex).trim();
+				//get next space index
+				int nextSpaceIndex = timeSlotString.indexOf(' ');
+				timeSlotString = timeSlotString.substring(0, nextSpaceIndex);
+				
+				//01:34-67:90
+				//convert to integer timeslot
+				//TODO: Refactor
+				String startString = timeSlotString.substring(0, 5);
+				String endString = timeSlotString.substring(6, 11);
+				int startSlot = ScheduleHelper.convertStringToIntSlot(startString);
+				int endSlot = ScheduleHelper.convertStringToIntSlot(endString);
 
+				//extract room
+				String room = subjectItem.schedule.substring(nextSpaceIndex).trim();
+												
 				String src = avatarSrc.get(i).attr("src");
 				subjectItem.avatarSrc = "http://learn.adamson.edu.ph/" + src.substring(3,
 						(src.indexOf('#') > 0 ? src.indexOf('#') : src.length()));
-						
+				
+				//add item to database.
+				stSubj.clearBindings();
+				stSubj.bindLong(1, sectionId);
+				stSubj.bindString(2, subjName);
+				stSubj.bindString(3, subjectItem.teacher);
+				stSubj.bindLong(4, daySlot);
+				stSubj.bindLong(5, startSlot);
+				stSubj.bindLong(6, endSlot);
+				stSubj.bindString(7, room);
+				stSubj.bindString(8, subjectItem.avatarSrc);
+				stSubj.execute();
+				//subjectArrayList.add(subjectItem);
+			}
+			//set transaction successful, then end transaction
+			eLearnDb.setTransactionSuccessful();
+			eLearnDb.endTransaction();
+			//close the database
+			eLearnDb.close();
+			
+			//Broadcast subject-list-ready event
+			broadcastListReady();
+			
+			//open database.
+			SQLiteDatabase eLearnDbRead = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
+			
+			//issue select
+			Cursor c = eLearnDbRead.rawQuery("SELECT * FROM SubjTable", null);
+			
+			while(c.moveToNext()) {
+				SubjectListItem subjectItem = new SubjectListItem();
+				StringBuilder sbSubject = new StringBuilder(
+						String.format("%05d", c.getInt(c.getColumnIndex("SectionId")))
+						);
+				sbSubject.append(" : ");
+				sbSubject.append(c.getString(c.getColumnIndex("SubjName")));
+				
+				subjectItem.subject = sbSubject.toString();
+				subjectItem.teacher = c.getString(c.getColumnIndex("ProfName"));
+				
+				StringBuilder sbSchedule = new StringBuilder(
+						ScheduleHelper.convertIntToStringDaySlot(c.getInt(c.getColumnIndex("DaySlot")))
+						);
+				sbSchedule.append(" ");
+				sbSchedule.append(
+						ScheduleHelper.convertIntToStringSlot(
+								c.getInt(c.getColumnIndex("TimeStart")),
+								c.getInt(c.getColumnIndex("TimeEnd")) )
+						);
+				sbSchedule.append(c.getString(c.getColumnIndex("Room")));
+				
+				subjectItem.schedule = sbSchedule.toString();
+				
+				subjectItem.avatarSrc = c.getString(c.getColumnIndex("AvatarSrc"));
 				subjectArrayList.add(subjectItem);
 			}
 			
+			eLearnDbRead.close();
+			
 			adapter.notifyDataSetChanged();
-		}		
+		}
+		
+		public void broadcastListReady() {
+			Intent intent = new Intent("subject-list-ready");
+			LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
+		}
+		
 	}
 	
-	public static class TodayFragment extends Fragment {
+	public static class TodayFragment extends ListFragment {
+		private TodayListAdapter adapter;
+		private ArrayList<TodayListItem> todayArrayList;
+		
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
+			Log.d("CURRI", "ONCREATEVIEW");
 			ViewGroup pageRootView = (ViewGroup) inflater.inflate(
-					R.layout.fragment_schedule, container, false);
+					R.layout.fragment_listview, container, false);
+			todayArrayList = new ArrayList<TodayListItem>();
+			adapter = new TodayListAdapter(getActivity(), todayArrayList);
+			setListAdapter(adapter);
 			return pageRootView;
-		}		
+		}
+		
+		
+		//listen to subject list ready event
+		@Override
+		public void onResume() {
+			// TODO Auto-generated method stub
+			super.onResume();
+			LocalBroadcastManager.getInstance(getActivity())
+				.registerReceiver(mMessageReceiver, new IntentFilter("subject-list-ready"));
+		}
+		
+		private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+			
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				Log.d("CURRI", "ONRECEIVE");
+				// TODO do list population here
+				//get current time
+				Time timeNow = new Time();
+				timeNow.setToNow();
+				int timeSlotNow = ScheduleHelper.convertTimeToIntSlot(timeNow);
+				
+				/*
+				 * 	eLearnDb.execSQL("CREATE TABLE SubjTable " +
+					"(SectionId INTEGER, SubjName TEXT, " +
+					"ProfName TEXT, DaySlot INTEGER, " + 
+					"TimeStart INTEGER, TimeEnd INTEGER, Room TEXT, " +
+					"AvatarSrc TEXT);");
+				 */
+				//get subjects today
+				SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
+				Cursor c = eLearnDb.rawQuery(
+						"SELECT * FROM SubjTable WHERE DaySlot & ? > 1 " +
+						"ORDER BY TimeStart", 
+						new String[] { String.valueOf(1 << (timeNow.weekDay - 1)) }
+						);
+				
+				short indicator = 0; // 1 = NOW, 2 = NEXT
+				while(c.moveToNext()) {
+					int curTimeStart = c.getInt(c.getColumnIndex("TimeStart"));
+					int curTimeEnd = c.getInt(c.getColumnIndex("TimeEnd"));
+					TodayListItem tempItem = new TodayListItem();
+					TodayListItem tempTitle = new TodayListItem();
+					tempTitle.viewType = TodayListAdapter.ItemType.ITEM_TITLE;
+					if( timeSlotNow < curTimeStart && (indicator & 2) == 0 ) { //WALANG PANG NOW at NEXT
+						tempItem.viewType = TodayListAdapter.ItemType.ITEM_NEXT;
+						tempTitle.mainText = "NEXT:";
+						todayArrayList.add(tempTitle);
+						indicator |= 2;
+					} else if ( timeSlotNow >= curTimeStart && timeSlotNow < curTimeEnd ) { //Now
+						tempItem.viewType = TodayListAdapter.ItemType.ITEM_NOW;
+						tempTitle.mainText = "NOW:";
+						todayArrayList.add(tempTitle);
+						indicator |= 1;
+					} else if ( timeSlotNow < curTimeStart ) {
+						tempTitle.mainText = "LATER:";
+						tempItem.viewType = TodayListAdapter.ItemType.ITEM_LATER;
+						if ( indicator < 4 )
+							todayArrayList.add(tempTitle);
+						indicator |= 4;
+					}
+					
+					//if now bit is unset after first pass, set it
+					if( (indicator & 1) == 0 && (indicator & 2) == 2 ) {
+						tempItem.viewType = TodayListAdapter.ItemType.ITEM_NOW;
+						indicator |= 1;
+					}
+					
+					//add to list here.
+					if(indicator > 0) {
+						tempItem.mainText = c.getString(c.getColumnIndex("SubjName"));
+						tempItem.timeText = ScheduleHelper
+								.convertIntToStringSlot(curTimeStart, curTimeEnd);
+						tempItem.roomText = c.getString(c.getColumnIndex("Room"));
+						Log.d("CURRI", ScheduleHelper
+								.convertIntToStringSlot(curTimeStart, curTimeEnd));
+							
+						todayArrayList.add(tempItem);
+					}
+				}
+				adapter.notifyDataSetChanged();
+			}
+		};
+		
+		@Override
+		public void onPause() {
+			// TODO Auto-generated method stub
+			Log.d("PAUSE", "PAUSE");
+			LocalBroadcastManager.getInstance(getActivity())
+			.unregisterReceiver(mMessageReceiver);
+			super.onPause();
+		}
 	}
 }
