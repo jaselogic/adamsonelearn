@@ -2,9 +2,20 @@ package com.jaselogic.adamsonelearn;
 
 import java.util.regex.Pattern;
 
+import android.text.format.Time;
 import android.util.Log;
 
 public class ScheduleHelper {
+	public static int convertTimeToIntSlot(Time t) {
+		int slot = 0;
+		
+		slot = (t.hour - 7) * 2;
+		if(t.minute >= 30)
+			slot++;
+		
+		return slot;
+	}
+	
 	public static int convertStringToIntSlot(String timeSlotString) {
 		int hour = Integer.parseInt(timeSlotString.substring(0, 2));
 		int slot = -1;

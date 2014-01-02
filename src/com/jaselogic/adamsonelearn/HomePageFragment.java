@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.format.Time;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -153,9 +154,10 @@ class HomePageFragment {
 			 * primitive type for SQLite and type affinity of boolean is an
 			 * 8-bit integer, it would consume more space than having a single
 			 * column for day slots.
+			 * Days are represented as a 6-bit integer
 			 * 0 bit when subject has no slot, otherwise 1
 			 * Monday starts at the least significant bit, up to 6th bit which is saturday
-			 * sample:
+			 * example:
 			 * for MWF subjects: 010101b = 21
 			 * for Sat subjects: 100000b = 32 
 			 * for subjects with Tuesday: xxxx1x or (dayslot | (1 << 1));
@@ -315,7 +317,51 @@ class HomePageFragment {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				// TODO do list population here
-				Log.d("POPULATE", "I LIKE TO POPULATE");
+				//get current time
+				Time timeNow = new Time();
+				timeNow.setToNow();
+				int timeSlotNow = ScheduleHelper.convertTimeToIntSlot(timeNow);
+				
+				/*
+				 * 	eLearnDb.execSQL("CREATE TABLE SubjTable " +
+					"(SectionId INTEGER, SubjName TEXT, " +
+					"ProfName TEXT, DaySlot INTEGER, " + 
+					"TimeStart INTEGER, TimeEnd INTEGER, Room TEXT, " +
+					"AvatarSrc TEXT);");
+				 */
+				//get subjects today
+				SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
+				Cursor c = eLearnDb.rawQuery(
+						"SELECT * FROM SubjTable WHERE DaySlot & ? > 1 " +
+						"ORDER BY TimeStart", 
+						new String[] { String.valueOf(1 << (timeNow.weekDay - 1)) }
+						);
+				
+				int indicator = 0; // 1 = NOW, 2 = NEXT
+				while(c.moveToNext()) {
+					int curTimeStart = c.getInt(c.getColumnIndex("TimeStart"));
+					int curTimeEnd = c.getInt(c.getColumnIndex("TimeEnd"));
+					if( timeSlotNow < curTimeStart && (indicator & 2) == 0 ) { //WALANG PANG NOW at NEXT
+						Log.d("NEXT", c.getString(c.getColumnIndex("SubjName")));
+						indicator |= 2;
+					} else if ( timeSlotNow >= curTimeStart && timeSlotNow < curTimeEnd ) { //Now
+						Log.d("NOW", c.getString(c.getColumnIndex("SubjName")));
+						indicator |= 1;
+					} else if ( timeSlotNow < curTimeStart ) {
+						Log.d("LATER", c.getString(c.getColumnIndex("SubjName")));
+					}
+					
+					//if now bit is unset after first pass
+					if( (indicator & 1) == 0 ) {
+						Log.d("NOW", "WALA PA SA NGAYON");
+						indicator |= 1;
+					}
+					
+					//add to list here.
+				}
+				
+				Log.d("POPULATE", String.valueOf(1 << (timeNow.weekDay - 1)));
+				Log.d("POPULATE", "Wtf");
 			}
 		};
 		

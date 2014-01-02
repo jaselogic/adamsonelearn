@@ -493,8 +493,6 @@ class CurriculumPageFragment {
 			adapter = new CurrDisplayAdapter(getActivity(), currArrayList);
 			setListAdapter(adapter);
 
-			Log.d("CREATE", "CREATE");
-			//get results with async task
 			
 			//get parent viewpager
 			parentViewPager = (NonSwipeViewPager) getActivity().findViewById(R.id.curriculum_pager);
