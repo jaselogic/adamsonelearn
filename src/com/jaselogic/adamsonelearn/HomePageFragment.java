@@ -11,6 +11,7 @@ import com.jaselogic.adamsonelearn.DocumentManager.ResponseReceiver;
 import com.jaselogic.adamsonelearn.DrawerListAdapter.DrawerListItem;
 import com.jaselogic.adamsonelearn.DrawerListAdapter.DrawerListItem.ItemType;
 import com.jaselogic.adamsonelearn.SubjectListAdapter.SubjectListItem;
+import com.jaselogic.adamsonelearn.TodayListAdapter.TodayListItem;
 import com.jaselogic.adamsonelearn.UpdatesListAdapter.UpdatesListItem;
 
 import android.content.BroadcastReceiver;
@@ -219,7 +220,7 @@ class HomePageFragment {
 				int endSlot = ScheduleHelper.convertStringToIntSlot(endString);
 
 				//extract room
-				String room = subjectItem.schedule.substring(nextSpaceIndex);
+				String room = subjectItem.schedule.substring(nextSpaceIndex).trim();
 												
 				String src = avatarSrc.get(i).attr("src");
 				subjectItem.avatarSrc = "http://learn.adamson.edu.ph/" + src.substring(3,
@@ -293,12 +294,19 @@ class HomePageFragment {
 		
 	}
 	
-	public static class TodayFragment extends Fragment {
+	public static class TodayFragment extends ListFragment {
+		private TodayListAdapter adapter;
+		private ArrayList<TodayListItem> todayArrayList;
+		
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
+			Log.d("CURRI", "ONCREATEVIEW");
 			ViewGroup pageRootView = (ViewGroup) inflater.inflate(
 					R.layout.fragment_listview, container, false);
+			todayArrayList = new ArrayList<TodayListItem>();
+			adapter = new TodayListAdapter(getActivity(), todayArrayList);
+			setListAdapter(adapter);
 			return pageRootView;
 		}
 		
@@ -316,6 +324,7 @@ class HomePageFragment {
 			
 			@Override
 			public void onReceive(Context context, Intent intent) {
+				Log.d("CURRI", "ONRECEIVE");
 				// TODO do list population here
 				//get current time
 				Time timeNow = new Time();
@@ -341,27 +350,46 @@ class HomePageFragment {
 				while(c.moveToNext()) {
 					int curTimeStart = c.getInt(c.getColumnIndex("TimeStart"));
 					int curTimeEnd = c.getInt(c.getColumnIndex("TimeEnd"));
+					TodayListItem tempItem = new TodayListItem();
+					TodayListItem tempTitle = new TodayListItem();
+					tempTitle.viewType = TodayListAdapter.ItemType.ITEM_TITLE;
 					if( timeSlotNow < curTimeStart && (indicator & 2) == 0 ) { //WALANG PANG NOW at NEXT
-						Log.d("NEXT", c.getString(c.getColumnIndex("SubjName")));
+						tempItem.viewType = TodayListAdapter.ItemType.ITEM_NEXT;
+						tempTitle.mainText = "NEXT:";
+						todayArrayList.add(tempTitle);
 						indicator |= 2;
 					} else if ( timeSlotNow >= curTimeStart && timeSlotNow < curTimeEnd ) { //Now
-						Log.d("NOW", c.getString(c.getColumnIndex("SubjName")));
+						tempItem.viewType = TodayListAdapter.ItemType.ITEM_NOW;
+						tempTitle.mainText = "NOW:";
+						todayArrayList.add(tempTitle);
 						indicator |= 1;
 					} else if ( timeSlotNow < curTimeStart ) {
-						Log.d("LATER", c.getString(c.getColumnIndex("SubjName")));
+						tempTitle.mainText = "LATER:";
+						tempItem.viewType = TodayListAdapter.ItemType.ITEM_LATER;
+						if ( indicator < 4 )
+							todayArrayList.add(tempTitle);
+						indicator |= 4;
 					}
 					
 					//if now bit is unset after first pass, set it
-					if( (indicator & 1) == 0 ) {
-						Log.d("NOW", "WALA PA SA NGAYON");
+					if( (indicator & 1) == 0 && (indicator & 2) == 2 ) {
+						tempItem.viewType = TodayListAdapter.ItemType.ITEM_NOW;
 						indicator |= 1;
 					}
 					
 					//add to list here.
+					if(indicator > 0) {
+						tempItem.mainText = c.getString(c.getColumnIndex("SubjName"));
+						tempItem.timeText = ScheduleHelper
+								.convertIntToStringSlot(curTimeStart, curTimeEnd);
+						tempItem.roomText = c.getString(c.getColumnIndex("Room"));
+						Log.d("CURRI", ScheduleHelper
+								.convertIntToStringSlot(curTimeStart, curTimeEnd));
+							
+						todayArrayList.add(tempItem);
+					}
 				}
-				
-				Log.d("POPULATE", String.valueOf(1 << (timeNow.weekDay - 1)));
-				Log.d("POPULATE", "Wtf");
+				adapter.notifyDataSetChanged();
 			}
 		};
 		

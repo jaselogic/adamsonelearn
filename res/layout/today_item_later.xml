@@ -4,49 +4,55 @@
     android:paddingTop="10dp"
     android:paddingBottom="14dp"
     android:layout_height="wrap_content"
-    android:orientation="horizontal" >
+    android:orientation="vertical" >
 
-    <ImageView
-        android:id="@+id/updates_avatar"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginLeft="5dp"
-        android:src="@drawable/ic_launcher" />
+	 <TextView
+	     android:id="@+id/today_later_maintext"
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_marginLeft="6dp"
+	     android:text="EMBEDDED SYSTEM"
+	     android:textSize="14sp"
+	     android:textColor="#000" />
+	    
+	 <TextView
+	     android:id="@+id/today_later_timetext"
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_marginLeft="6dp"
+	     android:textStyle="bold"
+	     android:text="00:00-00:00"
+	     android:textSize="14sp"
+	     android:textColor="#000" />
+	        
+	 <TextView
+	     android:id="@+id/today_later_roomtext"
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_marginLeft="6dp"
+	     android:text="OZ212"
+	     android:textSize="12sp"
+	     android:textStyle="bold"
+	     android:textColor="#000" />
+	 
+	 <TextView
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_marginLeft="6dp"
+	     android:text="Reminders:"
+	     android:layout_marginTop="4dp"
+	     android:textSize="13sp"
+	     android:textStyle="bold"
+	     android:textColor="#000" />
+	 
+	 <TextView
+	     android:id="@+id/today_later_reminders"
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_marginLeft="6dp"
+	     android:text="@string/lipsum"
+	     android:layout_marginTop="4dp"
+	     android:textSize="12sp"
+	     android:textColor="#000" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
-
-        <TextView
-	        android:id="@+id/subjects_subjectname"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="6dp"
-	        android:text="@string/lipsum"
-	        android:textSize="13sp"
-	        android:paddingBottom="8dp"
-	        android:textColor="#000" />
-        
-	    <TextView
-	        android:id="@+id/subjects_teacher"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="6dp"
-	        android:textStyle="bold"
-	        android:text="@string/lipsum"
-	        android:textSize="16sp"
-	        android:textColor="#000" />
-            
-	    <TextView
-	        android:id="@+id/subjects_schedule"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="6dp"
-	        android:text="@string/lipsum"
-	        android:textSize="14sp"
-	        android:textStyle="bold"
-	        android:textColor="#000" />
-
-    </LinearLayout>
 </LinearLayout>

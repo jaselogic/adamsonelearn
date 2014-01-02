@@ -64,14 +64,26 @@ public class TodayListAdapter extends BaseAdapter {
             holder = new ViewHolder();
             switch(listItem.viewType) {
             	case ITEM_TITLE:
-            		view = mLayoutInflater.inflate(R.layout.sem_title, viewGroup, false);
-            		holder.mainText = (TextView) view.findViewById(R.id.sem_title_text);
+            		view = mLayoutInflater.inflate(R.layout.today_item_title, viewGroup, false);
+            		holder.mainText = (TextView) view.findViewById(R.id.today_title_text);
             		break;
             	case ITEM_NOW:
+            		view = mLayoutInflater.inflate(R.layout.today_item_now, viewGroup, false);
+            		holder.mainText = (TextView) view.findViewById(R.id.today_now_maintext);
+            		holder.timeText = (TextView) view.findViewById(R.id.today_now_timetext);
+            		holder.roomText = (TextView) view.findViewById(R.id.today_now_roomtext);
             		break;
             	case ITEM_NEXT:
+            		view = mLayoutInflater.inflate(R.layout.today_item_next, viewGroup, false);
+            		holder.mainText = (TextView) view.findViewById(R.id.today_next_maintext);
+            		holder.timeText = (TextView) view.findViewById(R.id.today_next_timetext);
+            		holder.roomText = (TextView) view.findViewById(R.id.today_next_roomtext);
             		break;
             	case ITEM_LATER:
+            		view = mLayoutInflater.inflate(R.layout.today_item_later, viewGroup, false);
+            		holder.mainText = (TextView) view.findViewById(R.id.today_later_maintext);
+            		holder.timeText = (TextView) view.findViewById(R.id.today_later_timetext);
+            		holder.roomText = (TextView) view.findViewById(R.id.today_later_roomtext);
             		break;
             }
             
@@ -84,16 +96,16 @@ public class TodayListAdapter extends BaseAdapter {
  
         if (listItem != null) {
         	//TODO: might want to check if each is null.
+        		holder.mainText.setText(listItem.mainText);
         		switch(listItem.viewType) {
-    			case ITEM_TITLE:
-    				holder.mainText.setText(listItem.mainText);
-    				break;
-    			case ITEM_NOW:
-    				break;
-    			case ITEM_NEXT:
-    				break;
-    			case ITEM_LATER:
-    				break;
+	    			case ITEM_TITLE:
+	    				break;
+	    			case ITEM_NOW:
+	    			case ITEM_NEXT:
+	    			case ITEM_LATER:
+	    				holder.timeText.setText(listItem.timeText);
+	    				holder.roomText.setText(listItem.roomText);
+	    				break;
         		}
         }
  
