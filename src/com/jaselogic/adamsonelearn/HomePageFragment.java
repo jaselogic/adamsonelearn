@@ -337,7 +337,7 @@ class HomePageFragment {
 						new String[] { String.valueOf(1 << (timeNow.weekDay - 1)) }
 						);
 				
-				int indicator = 0; // 1 = NOW, 2 = NEXT
+				short indicator = 0; // 1 = NOW, 2 = NEXT
 				while(c.moveToNext()) {
 					int curTimeStart = c.getInt(c.getColumnIndex("TimeStart"));
 					int curTimeEnd = c.getInt(c.getColumnIndex("TimeEnd"));
@@ -351,7 +351,7 @@ class HomePageFragment {
 						Log.d("LATER", c.getString(c.getColumnIndex("SubjName")));
 					}
 					
-					//if now bit is unset after first pass
+					//if now bit is unset after first pass, set it
 					if( (indicator & 1) == 0 ) {
 						Log.d("NOW", "WALA PA SA NGAYON");
 						indicator |= 1;
