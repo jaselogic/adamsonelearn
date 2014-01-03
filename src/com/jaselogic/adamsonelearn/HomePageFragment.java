@@ -301,7 +301,6 @@ class HomePageFragment {
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
-			Log.d("CURRI", "ONCREATEVIEW");
 			ViewGroup pageRootView = (ViewGroup) inflater.inflate(
 					R.layout.fragment_listview, container, false);
 			todayArrayList = new ArrayList<TodayListItem>();
@@ -310,6 +309,23 @@ class HomePageFragment {
 			return pageRootView;
 		}
 		
+		private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+			
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				// TODO do list population here
+				//get current time
+				Time timeNow = new Time();
+				timeNow.setToNow();
+				
+				//open database
+				SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
+				Cursor c = getTodaySubjectsFromDatabase(timeNow, eLearnDb);
+				populateTodayListView(c, timeNow);
+				//close database
+				eLearnDb.close();
+			}
+		};
 		
 		//listen to subject list ready event
 		@Override
@@ -320,86 +336,66 @@ class HomePageFragment {
 				.registerReceiver(mMessageReceiver, new IntentFilter("subject-list-ready"));
 		}
 		
-		private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-			
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				Log.d("CURRI", "ONRECEIVE");
-				// TODO do list population here
-				//get current time
-				Time timeNow = new Time();
-				timeNow.setToNow();
-				int timeSlotNow = ScheduleHelper.convertTimeToIntSlot(timeNow);
-				
-				/*
-				 * 	eLearnDb.execSQL("CREATE TABLE SubjTable " +
-					"(SectionId INTEGER, SubjName TEXT, " +
-					"ProfName TEXT, DaySlot INTEGER, " + 
-					"TimeStart INTEGER, TimeEnd INTEGER, Room TEXT, " +
-					"AvatarSrc TEXT);");
-				 */
-				//get subjects today
-				SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
-				Cursor c = eLearnDb.rawQuery(
-						"SELECT * FROM SubjTable WHERE DaySlot & ? > 1 " +
-						"ORDER BY TimeStart", 
-						new String[] { String.valueOf(1 << (timeNow.weekDay - 1)) }
-						);
-				
-				short indicator = 0; // 1 = NOW, 2 = NEXT
-				while(c.moveToNext()) {
-					int curTimeStart = c.getInt(c.getColumnIndex("TimeStart"));
-					int curTimeEnd = c.getInt(c.getColumnIndex("TimeEnd"));
-					TodayListItem tempItem = new TodayListItem();
-					TodayListItem tempTitle = new TodayListItem();
-					tempTitle.viewType = TodayListAdapter.ItemType.ITEM_TITLE;
-					if( timeSlotNow < curTimeStart && (indicator & 2) == 0 ) { //WALANG PANG NOW at NEXT
-						tempItem.viewType = TodayListAdapter.ItemType.ITEM_NEXT;
-						tempTitle.mainText = "NEXT:";
-						todayArrayList.add(tempTitle);
-						indicator |= 2;
-					} else if ( timeSlotNow >= curTimeStart && timeSlotNow < curTimeEnd ) { //Now
-						tempItem.viewType = TodayListAdapter.ItemType.ITEM_NOW;
-						tempTitle.mainText = "NOW:";
-						todayArrayList.add(tempTitle);
-						indicator |= 1;
-					} else if ( timeSlotNow < curTimeStart ) {
-						tempTitle.mainText = "LATER:";
-						tempItem.viewType = TodayListAdapter.ItemType.ITEM_LATER;
-						if ( indicator < 4 )
-							todayArrayList.add(tempTitle);
-						indicator |= 4;
-					}
-					
-					//if now bit is unset after first pass, set it
-					if( (indicator & 1) == 0 && (indicator & 2) == 2 ) {
-						tempItem.viewType = TodayListAdapter.ItemType.ITEM_NOW;
-						indicator |= 1;
-					}
-					
-					//add to list here.
-					if(indicator > 0) {
-						tempItem.mainText = c.getString(c.getColumnIndex("SubjName"));
-						tempItem.timeText = ScheduleHelper
-								.convertIntToStringSlot(curTimeStart, curTimeEnd);
-						tempItem.roomText = c.getString(c.getColumnIndex("Room"));
-						Log.d("CURRI", ScheduleHelper
-								.convertIntToStringSlot(curTimeStart, curTimeEnd));
-							
-						todayArrayList.add(tempItem);
-					}
-				}
-				adapter.notifyDataSetChanged();
-			}
-		};
-		
 		@Override
 		public void onPause() {
 			// TODO Auto-generated method stub
-			Log.d("PAUSE", "PAUSE");
 			LocalBroadcastManager.getInstance(getActivity())
 			.unregisterReceiver(mMessageReceiver);
 			super.onPause();
 		}
+		
+		public Cursor getTodaySubjectsFromDatabase(Time timeNow, SQLiteDatabase eLearnDb) {
+			return eLearnDb.rawQuery(
+					"SELECT * FROM SubjTable WHERE DaySlot & ? > 1 " +
+					"ORDER BY TimeStart", 
+					new String[] { String.valueOf(1 << (timeNow.weekDay - 1)) }
+					);
+		}
+		
+		public void populateTodayListView(Cursor c, Time timeNow) {
+			int timeSlotNow = ScheduleHelper.convertTimeToIntSlot(timeNow);
+			short indicator = 0; // 1 = NOW, 2 = NEXT
+			while(c.moveToNext()) {
+				int curTimeStart = c.getInt(c.getColumnIndex("TimeStart"));
+				int curTimeEnd = c.getInt(c.getColumnIndex("TimeEnd"));
+				TodayListItem tempItem = new TodayListItem();
+				TodayListItem tempTitle = new TodayListItem();
+				tempTitle.viewType = TodayListAdapter.ItemType.ITEM_TITLE;
+				if( timeSlotNow < curTimeStart && (indicator & 2) == 0 ) { //WALANG PANG NOW at NEXT
+					tempItem.viewType = TodayListAdapter.ItemType.ITEM_NEXT;
+					tempTitle.mainText = "NEXT:";
+					todayArrayList.add(tempTitle);
+					indicator |= 2;
+				} else if ( timeSlotNow >= curTimeStart && timeSlotNow < curTimeEnd ) { //Now
+					tempItem.viewType = TodayListAdapter.ItemType.ITEM_NOW;
+					tempTitle.mainText = "NOW:";
+					todayArrayList.add(tempTitle);
+					indicator |= 1;
+				} else if ( timeSlotNow < curTimeStart ) {
+					tempTitle.mainText = "LATER:";
+					tempItem.viewType = TodayListAdapter.ItemType.ITEM_LATER;
+					if ( indicator < 4 )
+						todayArrayList.add(tempTitle);
+					indicator |= 4;
+				}
+				
+				//if now bit is unset after first pass, set it
+				if( (indicator & 1) == 0 && (indicator & 2) == 2 ) {
+					tempItem.viewType = TodayListAdapter.ItemType.ITEM_NOW;
+					indicator |= 1;
+				}
+				
+				//add to list here.
+				if(indicator > 0) {
+					tempItem.mainText = c.getString(c.getColumnIndex("SubjName"));
+					tempItem.timeText = ScheduleHelper
+							.convertIntToStringSlot(curTimeStart, curTimeEnd);
+					tempItem.roomText = c.getString(c.getColumnIndex("Room"));
+					todayArrayList.add(tempItem);
+				}
+			}
+			adapter.notifyDataSetChanged();
+		}
+		
 	}
 }
