@@ -1,15 +1,15 @@
 package com.jaselogic.adamsonelearn;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
-
+import java.util.Date;
 import org.jsoup.select.Elements;
 
 import com.jaselogic.adamsonelearn.DocumentManager.DocumentCookie;
 import com.jaselogic.adamsonelearn.DocumentManager.ResponseReceiver;
-import com.jaselogic.adamsonelearn.DrawerListAdapter.DrawerListItem;
-import com.jaselogic.adamsonelearn.DrawerListAdapter.DrawerListItem.ItemType;
 import com.jaselogic.adamsonelearn.SubjectListAdapter.SubjectListItem;
 import com.jaselogic.adamsonelearn.TodayListAdapter.TodayListItem;
 import com.jaselogic.adamsonelearn.UpdatesListAdapter.UpdatesListItem;
@@ -22,8 +22,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Bundle;
-import android.provider.OpenableColumns;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.Time;
@@ -61,17 +59,43 @@ class HomePageFragment {
 			//get original cookie
 			cookie = ((Dashboard)getActivity()).cookie;
 			
-			//TODO: remove strings stdno pw
-			new DocumentManager.DownloadDocumentTask(UpdatesFragment.this, 
-				DocumentManager.PAGE_UPDATES, cookie).execute("stdno", "pw");
-			
 			return pageRootView;
+		}
+		
+		private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				new DocumentManager.DownloadDocumentTask(UpdatesFragment.this, 
+						DocumentManager.PAGE_UPDATES, cookie).execute();
+			}
+		};
+		
+		//listen to subject list ready event
+		@Override
+		public void onResume() {
+			super.onResume();
+			LocalBroadcastManager.getInstance(getActivity())
+				.registerReceiver(mMessageReceiver, new IntentFilter("subject-list-ready"));
+		}
+		
+		@Override
+		public void onPause() {
+			LocalBroadcastManager.getInstance(getActivity())
+			.unregisterReceiver(mMessageReceiver);
+			super.onPause();
 		}
 
 		@Override
 		public void onResourceReceived(DocumentCookie res) throws IOException {
 			//open database
 			SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
+			//drop table if it exists
+			eLearnDb.execSQL("DROP TABLE IF EXISTS UpdatesTable;");
+			
+			//create the table
+			eLearnDb.execSQL("CREATE TABLE UpdatesTable " +
+					"(SectionId INTEGER, Title TEXT, " +
+					"Body TEXT, DateAdded INTEGER);");
 			
 			//Root node for updates page.
 			Elements updates = res.document.select(SELECTOR_UPDATES_PAGE);
@@ -82,6 +106,12 @@ class HomePageFragment {
 			Elements dateAdded = updates.select(SELECTOR_DATE);
 			Elements avatarSrc = updates.select(SELECTOR_AVATAR);
 
+			//SQL Statement
+			String sqlUpdates = "INSERT INTO UpdatesTable VALUES (?,?,?,?);";
+			SQLiteStatement stUpdates = eLearnDb.compileStatement(sqlUpdates);
+			
+			//begin SQL transaction
+			eLearnDb.beginTransaction();
 			for(int i = 0; i < subject.size(); i++) {
 				UpdatesListItem updateItem = new UpdatesListItem();
 				updateItem.name = teacher.get(i).text().trim();
@@ -90,14 +120,45 @@ class HomePageFragment {
 				updateItem.body = body.get(i).text().trim();
 				updateItem.dateAdded = dateAdded.get(i).text().trim();
 				
+				int subjCode = Integer.parseInt(
+						updateItem.subject.substring(0, updateItem.subject.indexOf(' '))
+						);
+				
+				DateFormat formatter = new SimpleDateFormat(
+						"'Date Added : 'MMM dd, yyyy 'at' hh:mm:ss aa");
+				Date date = null;
+				
+				try {
+					date = (Date) formatter.parse(updateItem.dateAdded);
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+				
+				Log.d("STAHP",
+						date.toString()
+						);
 				String src = avatarSrc.get(i).attr("src");
 				updateItem.avatarSrc = "http://learn.adamson.edu.ph/" + src.substring(3,
 						(src.indexOf('#') > 0 ? src.indexOf('#') : src.length()));
-						
+				
+				//add item to database
+				stUpdates.clearBindings();
+				stUpdates.bindLong(1, subjCode);
+				stUpdates.bindString(2, updateItem.title);
+				stUpdates.bindString(3, updateItem.body);
+				stUpdates.bindLong(4, date.getTime());
+				stUpdates.execute();
+				
 				updateArrayList.add(updateItem);
 			}
+			//set transaction success, then end transaction
+			eLearnDb.setTransactionSuccessful();
+			eLearnDb.endTransaction();
 			
 			adapter.notifyDataSetChanged();
+			
+			//close database
+			eLearnDb.close();
 		}
 	}
 	
