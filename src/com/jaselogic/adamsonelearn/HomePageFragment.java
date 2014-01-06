@@ -155,6 +155,13 @@ class HomePageFragment {
 			eLearnDb.setTransactionSuccessful();
 			eLearnDb.endTransaction();
 			
+			Cursor c = eLearnDb.rawQuery(
+					"SELECT SubjTable.ProfName, UpdatesTable.SectionId, " +
+					"SubjTable.SubjName, UpdatesTable.Title, " +
+					"UpdatesTable.Body, UpdatesTable.DateAdded " +
+					"FROM UpdatesTable LEFT JOIN SubjTable ON " +
+					"UpdatesTable.SectionId=SubjTable.SectionId", null);
+						
 			adapter.notifyDataSetChanged();
 			
 			//close database
