@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -35,14 +36,13 @@ import android.view.ViewGroup;
 class HomePageFragment {
 	//Page fragment class
 	public static class UpdatesFragment extends ListFragment implements ResponseReceiver {
-		//TODO: change to private final static
-		public final static String SELECTOR_UPDATES_PAGE = "tr";
-		public final static String SELECTOR_SUBJECT = "div > div:nth-of-type(1) span";
-		public final static String SELECTOR_TITLE = "div > div:nth-of-type(2) span";
-		public final static String SELECTOR_BODY = "div > div:nth-of-type(3) span";
-		public final static String SELECTOR_DATE = "div > div:nth-of-type(4)";
-		public final static String SELECTOR_AVATAR = "img[alt=Avatar]";
-		public final static String SELECTOR_TEACHER = "span.teachername";
+		private final static String SELECTOR_UPDATES_PAGE = "tr";
+		private final static String SELECTOR_SUBJECT = "div > div:nth-of-type(1) span";
+		private final static String SELECTOR_TITLE = "div > div:nth-of-type(2) span";
+		private final static String SELECTOR_BODY = "div > div:nth-of-type(3) span";
+		private final static String SELECTOR_DATE = "div > div:nth-of-type(4)";
+		private final static String SELECTOR_AVATAR = "img[alt=Avatar]";
+		private final static String SELECTOR_TEACHER = "span.teachername";
 		
 		private String cookie;
 		private UpdatesListAdapter adapter;
@@ -70,9 +70,11 @@ class HomePageFragment {
 
 		@Override
 		public void onResourceReceived(DocumentCookie res) throws IOException {
+			//open database
+			SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
+			
 			//Root node for updates page.
 			Elements updates = res.document.select(SELECTOR_UPDATES_PAGE);
-			
 			Elements teacher = updates.select(SELECTOR_TEACHER);
 			Elements subject = updates.select(SELECTOR_SUBJECT);
 			Elements title = updates.select(SELECTOR_TITLE);
@@ -82,11 +84,11 @@ class HomePageFragment {
 
 			for(int i = 0; i < subject.size(); i++) {
 				UpdatesListItem updateItem = new UpdatesListItem();
-				updateItem.name = teacher.get(i).text();
-				updateItem.subject = subject.get(i).text();
-				updateItem.title = title.get(i).text();
-				updateItem.body = body.get(i).text();
-				updateItem.dateAdded = dateAdded.get(i).text();
+				updateItem.name = teacher.get(i).text().trim();
+				updateItem.subject = subject.get(i).text().trim();
+				updateItem.title = title.get(i).text().trim();
+				updateItem.body = body.get(i).text().trim();
+				updateItem.dateAdded = dateAdded.get(i).text().trim();
 				
 				String src = avatarSrc.get(i).attr("src");
 				updateItem.avatarSrc = "http://learn.adamson.edu.ph/" + src.substring(3,
@@ -100,11 +102,11 @@ class HomePageFragment {
 	}
 	
 	public static class SubjectsFragment extends ListFragment implements ResponseReceiver {
-		public static final String SELECTOR_SUBJECTS_PAGE = "td";
-		public static final String SELECTOR_AVATAR = "img[alt=Avatar]";
-		public static final String SELECTOR_TEACHER = "div.teachername";
-		public static final String SELECTOR_SUBJECTNAME = "div.lectitle";
-		public static final String SELECTOR_SCHEDULE = "div.addeddate";
+		private final static String SELECTOR_SUBJECTS_PAGE = "td";
+		private final static String SELECTOR_AVATAR = "img[alt=Avatar]";
+		private final static String SELECTOR_TEACHER = "div.teachername";
+		private final static String SELECTOR_SUBJECTNAME = "div.lectitle";
+		private final static String SELECTOR_SCHEDULE = "div.addeddate";
 		
 		private String cookie;
 		private SubjectListAdapter adapter;
