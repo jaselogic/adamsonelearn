@@ -122,9 +122,8 @@ class HomePageFragment {
 			//get original cookie
 			cookie = ((Dashboard)getActivity()).cookie;
 			
-			//TODO: remove strings stdno pw
 			new DocumentManager.DownloadDocumentTask(SubjectsFragment.this, 
-			  	DocumentManager.PAGE_SUBJECTS, cookie).execute("stdno", "pw");
+			  	DocumentManager.PAGE_SUBJECTS, cookie).execute();
 			
 			return pageRootView;
 		}
@@ -132,7 +131,29 @@ class HomePageFragment {
 		@Override
 		public void onResourceReceived(DocumentCookie res)
 				throws IOException {
-			// TODO Auto-generated method stub
+
+			//open or create elearn database
+			SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
+			
+			//add subjects to database
+			addSubjectsToDatabase(res, eLearnDb);
+		
+			//Broadcast subject-list-ready event
+			broadcastListReady();
+			
+			//display subjects in subject list view
+			displaySubjects(eLearnDb);
+
+			//close database
+			eLearnDb.close();
+		}
+		
+		public void broadcastListReady() {
+			Intent intent = new Intent("subject-list-ready");
+			LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
+		}
+		
+		public void addSubjectsToDatabase(DocumentCookie res, SQLiteDatabase eLearnDb) {
 			//Root node for updates page.
 			Elements updates = res.document.select(SELECTOR_SUBJECTS_PAGE);
 			
@@ -140,10 +161,7 @@ class HomePageFragment {
 			Elements subject = updates.select(SELECTOR_SUBJECTNAME);
 			Elements schedule = updates.select(SELECTOR_SCHEDULE);
 			Elements avatarSrc = updates.select(SELECTOR_AVATAR);
-
-			//open or create elearn database
-			SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
-									
+			
 			//drop subject table if it exists
 			eLearnDb.execSQL("DROP TABLE IF EXISTS SubjTable");
 			
@@ -213,7 +231,6 @@ class HomePageFragment {
 				
 				//01:34-67:90
 				//convert to integer timeslot
-				//TODO: Refactor
 				String startString = timeSlotString.substring(0, 5);
 				String endString = timeSlotString.substring(6, 11);
 				int startSlot = ScheduleHelper.convertStringToIntSlot(startString);
@@ -241,18 +258,12 @@ class HomePageFragment {
 			}
 			//set transaction successful, then end transaction
 			eLearnDb.setTransactionSuccessful();
-			eLearnDb.endTransaction();
-			//close the database
-			eLearnDb.close();
-			
-			//Broadcast subject-list-ready event
-			broadcastListReady();
-			
-			//open database.
-			SQLiteDatabase eLearnDbRead = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
-			
+			eLearnDb.endTransaction();			
+		}
+		
+		public void displaySubjects(SQLiteDatabase eLearnDb) {
 			//issue select
-			Cursor c = eLearnDbRead.rawQuery("SELECT * FROM SubjTable", null);
+			Cursor c = eLearnDb.rawQuery("SELECT * FROM SubjTable", null);
 			
 			while(c.moveToNext()) {
 				SubjectListItem subjectItem = new SubjectListItem();
@@ -274,6 +285,7 @@ class HomePageFragment {
 								c.getInt(c.getColumnIndex("TimeStart")),
 								c.getInt(c.getColumnIndex("TimeEnd")) )
 						);
+				sbSchedule.append(" ");
 				sbSchedule.append(c.getString(c.getColumnIndex("Room")));
 				
 				subjectItem.schedule = sbSchedule.toString();
@@ -282,16 +294,8 @@ class HomePageFragment {
 				subjectArrayList.add(subjectItem);
 			}
 			
-			eLearnDbRead.close();
-			
 			adapter.notifyDataSetChanged();
 		}
-		
-		public void broadcastListReady() {
-			Intent intent = new Intent("subject-list-ready");
-			LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
-		}
-		
 	}
 	
 	public static class TodayFragment extends ListFragment {
@@ -313,15 +317,13 @@ class HomePageFragment {
 			
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				// TODO do list population here
 				//get current time
 				Time timeNow = new Time();
 				timeNow.setToNow();
 				
 				//open database
 				SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
-				Cursor c = getTodaySubjectsFromDatabase(timeNow, eLearnDb);
-				populateTodayListView(c, timeNow);
+				populateTodayListView(timeNow, eLearnDb);
 				//close database
 				eLearnDb.close();
 			}
@@ -330,7 +332,6 @@ class HomePageFragment {
 		//listen to subject list ready event
 		@Override
 		public void onResume() {
-			// TODO Auto-generated method stub
 			super.onResume();
 			LocalBroadcastManager.getInstance(getActivity())
 				.registerReceiver(mMessageReceiver, new IntentFilter("subject-list-ready"));
@@ -338,21 +339,18 @@ class HomePageFragment {
 		
 		@Override
 		public void onPause() {
-			// TODO Auto-generated method stub
 			LocalBroadcastManager.getInstance(getActivity())
 			.unregisterReceiver(mMessageReceiver);
 			super.onPause();
 		}
-		
-		public Cursor getTodaySubjectsFromDatabase(Time timeNow, SQLiteDatabase eLearnDb) {
-			return eLearnDb.rawQuery(
+				
+		public void populateTodayListView(Time timeNow, SQLiteDatabase eLearnDb) {
+			Cursor c = eLearnDb.rawQuery(
 					"SELECT * FROM SubjTable WHERE DaySlot & ? > 1 " +
 					"ORDER BY TimeStart", 
 					new String[] { String.valueOf(1 << (timeNow.weekDay - 1)) }
 					);
-		}
-		
-		public void populateTodayListView(Cursor c, Time timeNow) {
+			
 			int timeSlotNow = ScheduleHelper.convertTimeToIntSlot(timeNow);
 			short indicator = 0; // 1 = NOW, 2 = NEXT
 			while(c.moveToNext()) {
