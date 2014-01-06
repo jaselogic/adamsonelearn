@@ -87,6 +87,9 @@ class HomePageFragment {
 
 		@Override
 		public void onResourceReceived(DocumentCookie res) throws IOException {
+			DateFormat formatter = new SimpleDateFormat(
+					"'Date Added : 'MMM dd, yyyy 'at' hh:mm:ss aa");
+			
 			//open database
 			SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
 			//drop table if it exists
@@ -124,8 +127,6 @@ class HomePageFragment {
 						updateItem.subject.substring(0, updateItem.subject.indexOf(' '))
 						);
 				
-				DateFormat formatter = new SimpleDateFormat(
-						"'Date Added : 'MMM dd, yyyy 'at' hh:mm:ss aa");
 				Date date = null;
 				
 				try {
@@ -149,7 +150,7 @@ class HomePageFragment {
 				stUpdates.bindLong(4, date.getTime());
 				stUpdates.execute();
 				
-				updateArrayList.add(updateItem);
+				//updateArrayList.add(updateItem);
 			}
 			//set transaction success, then end transaction
 			eLearnDb.setTransactionSuccessful();
@@ -158,10 +159,28 @@ class HomePageFragment {
 			Cursor c = eLearnDb.rawQuery(
 					"SELECT SubjTable.ProfName, UpdatesTable.SectionId, " +
 					"SubjTable.SubjName, UpdatesTable.Title, " +
-					"UpdatesTable.Body, UpdatesTable.DateAdded " +
+					"UpdatesTable.Body, UpdatesTable.DateAdded, " +
+					"SubjTable.AvatarSrc " +
 					"FROM UpdatesTable LEFT JOIN SubjTable ON " +
 					"UpdatesTable.SectionId=SubjTable.SectionId", null);
-						
+			
+			while(c.moveToNext()) {
+				UpdatesListItem tempItem = new UpdatesListItem();
+				tempItem.name = c.getString(c.getColumnIndex("SubjTable.ProfName"));
+				StringBuilder sbSubject = new StringBuilder(
+						c.getString(c.getColumnIndex("UpdatesTable.SectionId"))
+						);
+				sbSubject.append(" : ");
+				sbSubject.append(c.getString(c.getColumnIndex("SubjTable.SubjName")));
+				tempItem.subject = sbSubject.toString();
+				tempItem.title = c.getString(c.getColumnIndex("UpdatesTable.Title"));
+				tempItem.body = c.getString(c.getColumnIndex("UpdatesTable.Body"));
+				tempItem.dateAdded = formatter.format(new Date(c.getLong(c.getColumnIndex("UpdatesTable.DateAdded"))));
+				tempItem.avatarSrc = c.getString(c.getColumnIndex("SubjTable.AvatarSrc"));
+				
+				updateArrayList.add(tempItem);
+			}
+			
 			adapter.notifyDataSetChanged();
 			
 			//close database
