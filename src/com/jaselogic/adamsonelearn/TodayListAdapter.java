@@ -3,6 +3,7 @@ package com.jaselogic.adamsonelearn;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -108,7 +109,7 @@ public class TodayListAdapter extends BaseAdapter {
 	    			case ITEM_LATER:
 	    				holder.timeText.setText(listItem.timeText);
 	    				holder.roomText.setText(listItem.roomText);
-	    				holder.reminderText.setText(listItem.reminderText);
+	    				holder.reminderText.setText(Html.fromHtml(listItem.reminderText));
 	    				break;
         		}
         }

@@ -445,13 +445,28 @@ class HomePageFragment {
 					"(SectionId INTEGER, Title TEXT, " +
 					"Body TEXT, DateAdded INTEGER);");
  */
+		
+/*
+ * 			"SELECT s.SubjName, s.TimeStart, " +
+			"s.TimeEnd, s.Room, " +
+			"u.Title, u.Body " +
+			"FROM SubjTable s LEFT OUTER JOIN UpdatesTable u " +
+			"ON s.SectionId = u.SectionId " +
+			"INNER JOIN (SELECT SectionId, MAX(DateAdded) AS maxDate FROM UpdatesTable GROUP BY SectionId) uniqTable " +
+			"ON uniqTable.SectionId = u.SectionId AND uniqTable.maxDate = u.DateAdded " +
+			"WHERE s.DaySlot & ? > 1 " +
+			"ORDER BY s.TimeStart", 
+ */
 		public void populateTodayListView(Time timeNow, SQLiteDatabase eLearnDb) {
 			Cursor c = eLearnDb.rawQuery(
 					"SELECT s.SubjName, s.TimeStart, " +
 					"s.TimeEnd, s.Room, " +
-					"u.Title, u.Body " +
-					"FROM SubjTable s LEFT JOIN UpdatesTable u " +
-					"ON s.SectionId = u.SectionId " +
+					"v.Title, v.Body " +
+					"FROM SubjTable s LEFT OUTER JOIN " +
+					"(SELECT * FROM UpdatesTable u " +
+					"INNER JOIN (SELECT SectionId, MAX(DateAdded) AS maxDate FROM UpdatesTable GROUP BY SectionId) uniqTable " +
+					"ON uniqTable.SectionId = u.SectionId AND uniqTable.maxDate = u.DateAdded) v " +
+					"ON s.SectionId = v.SectionId " +
 					"WHERE s.DaySlot & ? > 1 " +
 					"ORDER BY s.TimeStart", 
 					new String[] { String.valueOf(1 << (timeNow.weekDay - 1)) }
@@ -498,8 +513,18 @@ class HomePageFragment {
 							.convertIntToStringSlot(curTimeStart, curTimeEnd);
 					tempItem.roomText = c.getString(c.getColumnIndex("Room"));
 					//build reminder string
-					tempItem.reminderText = "None";
-					StringBuilder sbRem = new StringBuilder();
+					
+					String bodyString = c.getString(c.getColumnIndex("Body"));
+					String titleString = c.getString(c.getColumnIndex("Title"));
+					if(bodyString != null) {
+						StringBuilder sbRem = new StringBuilder("<b>");
+						sbRem.append(titleString);
+						sbRem.append("</b>.&nbsp;&nbsp;");
+						sbRem.append(bodyString);
+						tempItem.reminderText = sbRem.toString();
+					} else {
+						tempItem.reminderText = "None";
+					}
 					todayArrayList.add(tempItem);
 				}
 			}
