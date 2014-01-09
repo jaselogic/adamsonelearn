@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -37,6 +38,8 @@ public class Dashboard extends ActionBarActivity {
 	
 	private Page currentPage;
 	private Fragment fragment;
+	private int backCounter = 0;
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +116,7 @@ public class Dashboard extends ActionBarActivity {
         
         //Display home page
         //TODO: Check this on save instance state
-        displayPage(Page.HOME);
+        displayPage();
 	}
 	
 	//called via supportInvalidateOptionsMenu
@@ -146,6 +149,8 @@ public class Dashboard extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 	
+	
+	
 	//ITEM CLICK LISTENER
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
@@ -153,20 +158,13 @@ public class Dashboard extends ActionBarActivity {
             displayPage(Page.values()[position]);
         }
     }
-    
-    //ADDS "BACKSTACK" FUNCTIONALITY
-    @Override
-    public void onBackPressed() {
-    	switch(currentPage) {
-    		case CURRICULUM:
-    			ViewPager pager = (ViewPager) findViewById(R.id.curriculum_pager);
-    			if(pager.getCurrentItem() == 1) {
-    				pager.setCurrentItem(0, true);
-    			} else super.onBackPressed();
-    			break;
-    		default:
-    			super.onBackPressed();
-    	}
+        
+    //displays main page
+    private void displayPage() {
+    	Fragment fragment = new HomeFragment();
+    	FragmentManager fragmentManager = getSupportFragmentManager();
+    	fragmentManager.beginTransaction().replace(R.id.content_frame, fragment)
+    		.commit();
     }
 	
 	//displays page fragment
@@ -191,8 +189,8 @@ public class Dashboard extends ActionBarActivity {
 		if(fragmentFlag) {
 			// Insert fragment to content frame
 			FragmentManager fragmentManager = getSupportFragmentManager();
-	        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment)
-	        		.commit();
+			fragmentManager.beginTransaction().replace(R.id.content_frame, fragment)
+	        	.addToBackStack(null).commit();
 		} else {
 			new AlertDialogBuilder.NeutralDialog("Coming Soon", 
 					"This feature is currently unavailable.", Dashboard.this);
