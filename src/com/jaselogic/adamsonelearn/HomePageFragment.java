@@ -166,17 +166,17 @@ class HomePageFragment {
 			
 			while(c.moveToNext()) {
 				UpdatesListItem tempItem = new UpdatesListItem();
-				tempItem.name = c.getString(c.getColumnIndex("SubjTable.ProfName"));
+				tempItem.name = c.getString(c.getColumnIndex("ProfName"));
 				StringBuilder sbSubject = new StringBuilder(
-						c.getString(c.getColumnIndex("UpdatesTable.SectionId"))
+						c.getString(c.getColumnIndex("SectionId"))
 						);
 				sbSubject.append(" : ");
-				sbSubject.append(c.getString(c.getColumnIndex("SubjTable.SubjName")));
+				sbSubject.append(c.getString(c.getColumnIndex("SubjName")));
 				tempItem.subject = sbSubject.toString();
-				tempItem.title = c.getString(c.getColumnIndex("UpdatesTable.Title"));
-				tempItem.body = c.getString(c.getColumnIndex("UpdatesTable.Body"));
-				tempItem.dateAdded = formatter.format(new Date(c.getLong(c.getColumnIndex("UpdatesTable.DateAdded"))));
-				tempItem.avatarSrc = c.getString(c.getColumnIndex("SubjTable.AvatarSrc"));
+				tempItem.title = c.getString(c.getColumnIndex("Title"));
+				tempItem.body = c.getString(c.getColumnIndex("Body"));
+				tempItem.dateAdded = formatter.format(new Date(c.getLong(c.getColumnIndex("DateAdded"))));
+				tempItem.avatarSrc = c.getString(c.getColumnIndex("AvatarSrc"));
 				
 				updateArrayList.add(tempItem);
 			}
@@ -432,16 +432,35 @@ class HomePageFragment {
 			.unregisterReceiver(mMessageReceiver);
 			super.onPause();
 		}
-				
+/*SUBJECT
+		eLearnDb.execSQL("CREATE TABLE SubjTable " +
+				"(SectionId INTEGER, SubjName TEXT, " +
+				"ProfName TEXT, DaySlot INTEGER, " + 
+				"TimeStart INTEGER, TimeEnd INTEGER, Room TEXT, " +
+				"AvatarSrc TEXT);");
+	*/	
+		
+/*UPDATES
+ * 			eLearnDb.execSQL("CREATE TABLE UpdatesTable " +
+					"(SectionId INTEGER, Title TEXT, " +
+					"Body TEXT, DateAdded INTEGER);");
+ */
 		public void populateTodayListView(Time timeNow, SQLiteDatabase eLearnDb) {
 			Cursor c = eLearnDb.rawQuery(
-					"SELECT * FROM SubjTable WHERE DaySlot & ? > 1 " +
-					"ORDER BY TimeStart", 
+					"SELECT s.SubjName, s.TimeStart, " +
+					"s.TimeEnd, s.Room, " +
+					"u.Title, u.Body " +
+					"FROM SubjTable s LEFT JOIN UpdatesTable u " +
+					"ON s.SectionId = u.SectionId " +
+					"WHERE s.DaySlot & ? > 1 " +
+					"ORDER BY s.TimeStart", 
 					new String[] { String.valueOf(1 << (timeNow.weekDay - 1)) }
 					);
 			
 			int timeSlotNow = ScheduleHelper.convertTimeToIntSlot(timeNow);
 			short indicator = 0; // 1 = NOW, 2 = NEXT
+			
+			Log.d("CURRI", String.valueOf(c.getCount()));
 			while(c.moveToNext()) {
 				int curTimeStart = c.getInt(c.getColumnIndex("TimeStart"));
 				int curTimeEnd = c.getInt(c.getColumnIndex("TimeEnd"));
@@ -478,6 +497,9 @@ class HomePageFragment {
 					tempItem.timeText = ScheduleHelper
 							.convertIntToStringSlot(curTimeStart, curTimeEnd);
 					tempItem.roomText = c.getString(c.getColumnIndex("Room"));
+					//build reminder string
+					tempItem.reminderText = "None";
+					StringBuilder sbRem = new StringBuilder();
 					todayArrayList.add(tempItem);
 				}
 			}

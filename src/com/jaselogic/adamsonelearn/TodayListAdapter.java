@@ -72,18 +72,21 @@ public class TodayListAdapter extends BaseAdapter {
             		holder.mainText = (TextView) view.findViewById(R.id.today_now_maintext);
             		holder.timeText = (TextView) view.findViewById(R.id.today_now_timetext);
             		holder.roomText = (TextView) view.findViewById(R.id.today_now_roomtext);
+            		holder.reminderText = (TextView) view.findViewById(R.id.today_now_reminders);
             		break;
             	case ITEM_NEXT:
             		view = mLayoutInflater.inflate(R.layout.today_item_next, viewGroup, false);
             		holder.mainText = (TextView) view.findViewById(R.id.today_next_maintext);
             		holder.timeText = (TextView) view.findViewById(R.id.today_next_timetext);
             		holder.roomText = (TextView) view.findViewById(R.id.today_next_roomtext);
+            		holder.reminderText = (TextView) view.findViewById(R.id.today_next_reminders);
             		break;
             	case ITEM_LATER:
             		view = mLayoutInflater.inflate(R.layout.today_item_later, viewGroup, false);
             		holder.mainText = (TextView) view.findViewById(R.id.today_later_maintext);
             		holder.timeText = (TextView) view.findViewById(R.id.today_later_timetext);
             		holder.roomText = (TextView) view.findViewById(R.id.today_later_roomtext);
+            		holder.reminderText = (TextView) view.findViewById(R.id.today_later_reminders);
             		break;
             }
             
@@ -105,6 +108,7 @@ public class TodayListAdapter extends BaseAdapter {
 	    			case ITEM_LATER:
 	    				holder.timeText.setText(listItem.timeText);
 	    				holder.roomText.setText(listItem.roomText);
+	    				holder.reminderText.setText(listItem.reminderText);
 	    				break;
         		}
         }
@@ -119,12 +123,14 @@ public class TodayListAdapter extends BaseAdapter {
 		protected TextView mainText;
 		protected TextView timeText;
 		protected TextView roomText;
+		protected TextView reminderText;
 	}
 	
 	public static class TodayListItem {
 		public String mainText;
 		public String timeText;
 		public String roomText;
+		public String reminderText;
 		public ItemType viewType;
 	}
 	
