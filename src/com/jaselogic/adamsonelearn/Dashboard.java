@@ -183,6 +183,9 @@ public class Dashboard extends ActionBarActivity {
 				fragment = new CurriculumFragment();
 				fragmentFlag = true;
 				break;
+			case LOGOUT:
+				this.finish();
+				return;
 		}
 		
 		if(fragmentFlag) {

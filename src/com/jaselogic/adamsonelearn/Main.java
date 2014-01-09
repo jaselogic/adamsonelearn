@@ -110,6 +110,8 @@ public class Main extends Activity implements DocumentManager.ResponseReceiver {
 				intent.putExtra("course", studinfo.get(2).text());
 				intent.putExtra("year", studinfo.get(3).text());
 				startActivity(intent);
+				setViewVisibility(View.VISIBLE);
+				txtPassword.setText("");
 			} else { //kung hindi nakalogin, mali user pass.
 				new AlertDialogBuilder.NeutralDialog("Mali password", 
 						"Invalid username/password", Main.this);
