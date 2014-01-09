@@ -172,20 +172,28 @@ public class Dashboard extends ActionBarActivity {
 	//displays page fragment
 	private void displayPage(Page p) {
 		fragment = null;
+		boolean fragmentFlag = false;
 		currentPage = p;
 		switch(p) {
 			case HOME:
 				fragment = new HomeFragment();
+				fragmentFlag = true;
 				break;
 			case CURRICULUM:
 				fragment = new CurriculumFragment();
+				fragmentFlag = true;
 				break;
 		}
 		
-		// Insert fragment to content frame
-		FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment)
-        		.commit();
+		if(fragmentFlag) {
+			// Insert fragment to content frame
+			FragmentManager fragmentManager = getSupportFragmentManager();
+	        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment)
+	        		.commit();
+		} else {
+			new AlertDialogBuilder.NeutralDialog("Coming Soon", 
+					"This feature is currently unavailable.", Dashboard.this);
+		}
         
         // Set item checked in drawer, then close drawer
         lvDrawer.setItemChecked(p.ordinal(), true);
