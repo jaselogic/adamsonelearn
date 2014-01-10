@@ -6,9 +6,13 @@ import java.util.regex.Pattern;
 
 import com.jaselogic.adamsonelearn.DrawerListAdapter.DrawerListItem;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -182,6 +186,13 @@ public class Dashboard extends ActionBarActivity {
 				fragmentFlag = true;
 				break;
 			case LOGOUT:
+				//clear preferences on logout
+				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+				prefs.edit().clear().commit();
+				
+				//start main activity
+				Intent intent = new Intent(Dashboard.this, Main.class);
+				startActivity(intent);
 				this.finish();
 				return;
 		}

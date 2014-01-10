@@ -30,7 +30,7 @@ public abstract class DownloadDocumentIntentService extends IntentService {
 		Document result = null;
 		Response loginres = null;
 		
-		
+		performPriorDownload();
 		
         try {
         	if(cookie == null) {
@@ -53,6 +53,7 @@ public abstract class DownloadDocumentIntentService extends IntentService {
 
 	}
 
+	protected abstract void performPriorDownload();
 	protected abstract void performAfterDownload(Document result, String cookie, Intent intent);
 	protected abstract String getCookie(Intent intent);
 	protected abstract String getPage();

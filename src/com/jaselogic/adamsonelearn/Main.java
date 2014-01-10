@@ -7,11 +7,14 @@ import com.jaselogic.adamsonelearn.DocumentManager.DocumentCookie;
 
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -22,7 +25,8 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class Main extends Activity {
-
+	private final static String VISIBILITY_STATE = "visibility";
+	
 	private Button btnLogin;
 	private EditText txtStudNo;
 	private EditText txtPassword;
@@ -35,27 +39,41 @@ public class Main extends Activity {
 			Bundle bundle = intent.getExtras();
 			String status = bundle.getString(LoginIntentService.EXTRA_STATUS);
 			if(status.equals(LoginIntentService.STATUS_VALID)) { //Valid username/password
-				Intent dash = new Intent(context.getApplicationContext(), Dashboard.class);
-				dash.putExtra("PHPSESSID", bundle.getString(LoginIntentService.EXTRA_COOKIE));
-				dash.putExtra("avatarSrc", bundle.getString(LoginIntentService.EXTRA_AVATAR));
-				dash.putExtra("name", bundle.getString(LoginIntentService.EXTRA_NAME));
-				dash.putExtra("studNo", bundle.getString(LoginIntentService.EXTRA_STUDNO));
-				dash.putExtra("course", bundle.getString(LoginIntentService.EXTRA_COURSE));
-				dash.putExtra("year", bundle.getString(LoginIntentService.EXTRA_YEAR));
-				context.startActivity(dash);
-				Main.this.finish();
+				onLoginValid();
 			} else if (status.equals(LoginIntentService.STATUS_INVALID)) { //Invalid user/pass
-				new AlertDialogBuilder.NeutralDialog("Mali password", 
-						"Invalid username/password", Main.this);
-				setViewVisibility(View.VISIBLE);		
+				onLoginInvalid();
 			} else { //Document was not successfully downloaded.
-				new AlertDialogBuilder.NeutralDialog("Sira net", 
-						"May problema net connection mo. Ayusin mo.", Main.this);
-				setViewVisibility(View.VISIBLE);				
+				onLoginUnsuccessful();
 			}
 		}
 	};
+	
 
+	private void onLoginValid() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		Intent dash = new Intent(Main.this, Dashboard.class);
+		dash.putExtra("PHPSESSID", prefs.getString(LoginIntentService.EXTRA_COOKIE, null));
+		dash.putExtra("avatarSrc", prefs.getString(LoginIntentService.EXTRA_AVATAR, null));
+		dash.putExtra("name", prefs.getString(LoginIntentService.EXTRA_NAME, null));
+		dash.putExtra("studNo", prefs.getString(LoginIntentService.EXTRA_STUDNO, null));
+		dash.putExtra("course", prefs.getString(LoginIntentService.EXTRA_COURSE, null));
+		dash.putExtra("year", prefs.getString(LoginIntentService.EXTRA_YEAR, null));
+		startActivity(dash);
+		this.finish();
+	}
+	
+	private void onLoginInvalid()  {
+		new AlertDialogBuilder.NeutralDialog("Mali password", 
+				"Invalid username/password", Main.this);
+		setViewVisibility(View.VISIBLE);		
+	}
+	
+	private void onLoginUnsuccessful() {
+		new AlertDialogBuilder.NeutralDialog("Sira net", 
+				"May problema net connection mo. Ayusin mo.", Main.this);
+		setViewVisibility(View.VISIBLE);			
+	}
+	
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -66,6 +84,27 @@ public class Main extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		
+		int status = prefs.getInt(LoginIntentService.CONNECTION_STATUS, LoginIntentService.CONNECTION_IDLE);
+		switch(status) {
+			case LoginIntentService.CONNECTION_CONNECTING:
+				setViewVisibility(View.INVISIBLE);
+				break;
+			case LoginIntentService.CONNECTION_VALID:
+				onLoginValid();
+				break;
+			case LoginIntentService.CONNECTION_INVALID:
+				onLoginInvalid();
+				break;
+			case LoginIntentService.CONNECTION_UNSUCCESSFUL:
+				onLoginUnsuccessful();
+				break;
+			case LoginIntentService.CONNECTION_IDLE:
+				break;
+		}
+		
+		Log.d("PAUSE", "RESUMA");
 		registerReceiver(mBroadcastReceiver, new IntentFilter(LoginIntentService.NOTIFICATION));
 	}
 	
@@ -73,7 +112,7 @@ public class Main extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		//get views
 		btnLogin = (Button) findViewById(R.id.btn_login);
 		txtStudNo = (EditText) findViewById(R.id.txt_studno);
@@ -102,7 +141,7 @@ public class Main extends Activity {
 					setViewVisibility(View.INVISIBLE);
 					
 					//If internet connection is present
-					if(isNetworkConnected()) {
+					if(isNetworkConnected()) {					
 						Intent intent = new Intent(Main.this, LoginIntentService.class);
 						intent.putExtra(LoginIntentService.EXTRA_STUDNO, studNo);
 						intent.putExtra(LoginIntentService.EXTRA_PASSWORD, password);
