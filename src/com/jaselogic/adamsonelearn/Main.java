@@ -21,7 +21,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-public class Main extends Activity implements DocumentManager.ResponseReceiver {
+public class Main extends Activity {
 
 	private Button btnLogin;
 	private EditText txtStudNo;
@@ -33,13 +33,33 @@ public class Main extends Activity implements DocumentManager.ResponseReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			Bundle bundle = intent.getExtras();
-			Log.d("CURRI", bundle.getString(LoginIntentService.EXTRA_STATUS));
+			String status = bundle.getString(LoginIntentService.EXTRA_STATUS);
+			if(status.equals(LoginIntentService.STATUS_VALID)) { //Valid username/password
+				Intent dash = new Intent(context.getApplicationContext(), Dashboard.class);
+				dash.putExtra("PHPSESSID", bundle.getString(LoginIntentService.EXTRA_COOKIE));
+				dash.putExtra("avatarSrc", bundle.getString(LoginIntentService.EXTRA_AVATAR));
+				dash.putExtra("name", bundle.getString(LoginIntentService.EXTRA_NAME));
+				dash.putExtra("studNo", bundle.getString(LoginIntentService.EXTRA_STUDNO));
+				dash.putExtra("course", bundle.getString(LoginIntentService.EXTRA_COURSE));
+				dash.putExtra("year", bundle.getString(LoginIntentService.EXTRA_YEAR));
+				context.startActivity(dash);
+				Main.this.finish();
+			} else if (status.equals(LoginIntentService.STATUS_INVALID)) { //Invalid user/pass
+				new AlertDialogBuilder.NeutralDialog("Mali password", 
+						"Invalid username/password", Main.this);
+				setViewVisibility(View.VISIBLE);		
+			} else { //Document was not successfully downloaded.
+				new AlertDialogBuilder.NeutralDialog("Sira net", 
+						"May problema net connection mo. Ayusin mo.", Main.this);
+				setViewVisibility(View.VISIBLE);				
+			}
 		}
 	};
-	
+
 	@Override
 	protected void onPause() {
 		super.onPause();
+		Log.d("PAUSE", "PUSA");
 		unregisterReceiver(mBroadcastReceiver);
 	};
 	
@@ -87,7 +107,6 @@ public class Main extends Activity implements DocumentManager.ResponseReceiver {
 						intent.putExtra(LoginIntentService.EXTRA_STUDNO, studNo);
 						intent.putExtra(LoginIntentService.EXTRA_PASSWORD, password);
 						startService(intent);
-						//new DocumentManager.DownloadDocumentTask(Main.this, DocumentManager.PAGE_BALINQ, null).execute(studNo, password);
 					} else {
 						setViewVisibility(View.VISIBLE);
 						new AlertDialogBuilder.NeutralDialog("Walang net", 
@@ -120,37 +139,4 @@ public class Main extends Activity implements DocumentManager.ResponseReceiver {
 		return true;
 	}
 
-	@Override
-	public void onResourceReceived(DocumentCookie res) throws IOException {
-		//if document has been successfully retrieved
-		if(res != null) {
-			//Check if img.avatar exists
-			Elements avatar = res.document.select("img.avatar");
-			if(avatar.size() > 0) { //kung nakalogin successfully.
-				Intent intent = new Intent(Main.this, Dashboard.class);
-				//changed to dashboard class
-				String avatarSrc = avatar.get(0).attr("src");
-				Elements studinfo = res.document.select("div.studinfo");
-				avatarSrc = "http://learn.adamson.edu.ph/" + avatarSrc.substring(3,
-						(avatarSrc.indexOf('#') > 0 ? avatarSrc.indexOf('#') : avatarSrc.length()));
-				
-				intent.putExtra("PHPSESSID", res.cookie);
-				intent.putExtra("avatarSrc", avatarSrc);
-				intent.putExtra("name", studinfo.get(0).text());
-				intent.putExtra("studNo", studinfo.get(1).text());
-				intent.putExtra("course", studinfo.get(2).text());
-				intent.putExtra("year", studinfo.get(3).text());
-				startActivity(intent);
-				this.finish();
-			} else { //kung hindi nakalogin, mali user pass.
-				new AlertDialogBuilder.NeutralDialog("Mali password", 
-						"Invalid username/password", Main.this);
-				setViewVisibility(View.VISIBLE);				
-			}
-		} else { //if no document has been retrieved, possibly from faulty connection
-			new AlertDialogBuilder.NeutralDialog("Sira net", 
-					"May problema net connection mo. Ayusin mo.", Main.this);
-			setViewVisibility(View.VISIBLE);
-		}
-	}	
 }
