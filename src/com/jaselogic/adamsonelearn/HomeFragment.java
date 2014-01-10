@@ -3,22 +3,25 @@ package com.jaselogic.adamsonelearn;
 import com.viewpagerindicator.TabPageIndicator;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment {
 	
 	private static final int NUM_PAGES = 3;
 	private static final String[] STR_TITLES = new String[] {
 		"Updates",
 		"Subjects",
-		"Schedule"
+		"Today"
 	};
 	
 	//pager view
@@ -37,7 +40,8 @@ class HomeFragment extends Fragment {
 		
 		//create a new instance of ViewPager and PagerAdapter
 		mPager = (ViewPager) rootView.findViewById(R.id.home_pager);
-		mPagerAdapter = new HomePagerAdapter(getFragmentManager());
+		mPagerAdapter = new HomePagerAdapter(getChildFragmentManager());
+		mPager.setOffscreenPageLimit(2);
 		mPager.setAdapter(mPagerAdapter);
 		
 		TabPageIndicator indicator = (TabPageIndicator) rootView.findViewById(R.id.viewpagerIndicator);
@@ -62,7 +66,7 @@ class HomeFragment extends Fragment {
 				return new HomePageFragment.SubjectsFragment();
 			}
 			
-			return new HomePageFragment.ScheduleFragment();
+			return new HomePageFragment.TodayFragment();
 		}
 		
 		@Override

@@ -12,5 +12,7 @@
         android:layout_marginBottom="4dp"
         android:layout_marginLeft="6dp"
 		android:textStyle="bold"
-		android:text="TextView" />
+		android:text="TextView" />
+    
+    
 </LinearLayout>

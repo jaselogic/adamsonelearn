@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:paddingTop="10dp"
+    android:paddingBottom="14dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+	 <TextView
+	     android:id="@+id/today_next_maintext"
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_marginLeft="6dp"
+	     android:text="EMBEDDED SYSTEM"
+	     android:textSize="15sp"
+	     android:textColor="#000" />
+	    
+	 <TextView
+	     android:id="@+id/today_next_timetext"
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_marginLeft="6dp"
+	     android:textStyle="bold"
+	     android:text="00:00-00:00"
+	     android:textSize="28sp"
+	     android:textColor="#000" />
+	        
+	 <TextView
+	     android:id="@+id/today_next_roomtext"
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_marginLeft="6dp"
+	     android:text="OZ212"
+	     android:textSize="14sp"
+	     android:textStyle="bold"
+	     android:textColor="#000" />
+	 
+	 <TextView
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_marginLeft="6dp"
+	     android:text="Reminders:"
+	     android:layout_marginTop="4dp"
+	     android:textSize="14sp"
+	     android:textStyle="bold"
+	     android:textColor="#000" />
+	 
+	 <TextView
+	     android:id="@+id/today_next_reminders"
+	     android:layout_width="wrap_content"
+	     android:layout_height="wrap_content"
+	     android:layout_marginLeft="6dp"
+	     android:text="None"
+	     android:layout_marginTop="4dp"
+	     android:textSize="13sp"
+	     android:textColor="#000" />
+</LinearLayout>

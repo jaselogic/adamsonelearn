@@ -39,7 +39,7 @@ class DrawerListAdapter extends BaseAdapter {
     
     @Override
     public boolean areAllItemsEnabled() {
-    	return false;
+    	return true;
     }
     
     @Override

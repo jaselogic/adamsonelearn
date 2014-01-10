@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?><LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:paddingTop="10dp"
+    android:paddingBottom="14dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+    
+	    <TextView
+	        android:id="@+id/curr_regular_maintext"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="12dp"
+	        android:textStyle="bold"
+	        android:text="EMBEDDED SYSTEMS"
+	        android:textSize="16sp"
+	        android:textColor="#000" />
+
+	    <TextView
+	        android:id="@+id/curr_regular_unittext"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="12dp"
+	        android:layout_marginBottom="4dp"
+	        android:text="Units:"
+	        android:textSize="14sp"
+	        android:textStyle="italic"
+	        android:textColor="#000" />
+	    
+	    <TextView
+	        android:id="@+id/curr_regular_prereqlabel"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="12dp"
+	        android:text="Prerequisites:"
+	        android:textSize="14sp"
+	        android:textStyle="bold"
+	        android:textColor="#000" />
+	    
+		<TextView
+	        android:id="@+id/curr_regular_prereqtext"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="12dp"
+	        android:text="@string/lipsum"
+	        android:textSize="13sp"
+	        android:paddingBottom="8dp"
+	        android:textColor="#000" />
+	    
+	    <TextView
+	        android:id="@+id/curr_regular_coreqlabel"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="12dp"
+	        android:text="Co-requisites:"
+	        android:textSize="14sp"
+	        android:textStyle="bold"
+	        android:textColor="#000" />
+
+	    <TextView
+	        android:id="@+id/curr_regular_coreqtext"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="12dp"
+	        android:text="@string/lipsum"
+	        android:textSize="13sp"
+	        android:paddingBottom="8dp"
+	        android:textColor="#000" />
+
+</LinearLayout>

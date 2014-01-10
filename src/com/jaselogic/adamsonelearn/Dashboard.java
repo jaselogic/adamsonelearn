@@ -6,14 +6,21 @@ import java.util.regex.Pattern;
 
 import com.jaselogic.adamsonelearn.DrawerListAdapter.DrawerListItem;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +39,11 @@ public class Dashboard extends ActionBarActivity {
 	
 	public String cookie;
 	public Bundle studinfo;
+	
+	private Page currentPage;
+	private Fragment fragment;
+	private int backCounter = 0;
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -108,8 +120,23 @@ public class Dashboard extends ActionBarActivity {
         
         //Display home page
         //TODO: Check this on save instance state
-        displayPage(Page.HOME);
+        displayPage();
 	}
+	
+    //ADDS "BACKSTACK" FUNCTIONALITY
+    @Override
+    public void onBackPressed() {
+		switch(currentPage) {
+			case CURRICULUM:
+				ViewPager pager = (ViewPager) findViewById(R.id.curriculum_pager);
+				if(pager.getCurrentItem() == 1) {
+					pager.setCurrentItem(0, true);
+				} else super.onBackPressed();
+				break;
+			default:
+				super.onBackPressed();
+		}
+    }
 	
 	//called via supportInvalidateOptionsMenu
 	@Override
@@ -141,6 +168,8 @@ public class Dashboard extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 	
+	
+	
 	//ITEM CLICK LISTENER
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         @Override
@@ -148,20 +177,50 @@ public class Dashboard extends ActionBarActivity {
             displayPage(Page.values()[position]);
         }
     }
+        
+    //displays main page
+    private void displayPage() {
+    	Fragment fragment = new HomeFragment();
+    	FragmentManager fragmentManager = getSupportFragmentManager();
+    	fragmentManager.beginTransaction().replace(R.id.content_frame, fragment)
+    		.commitAllowingStateLoss();
+    }
 	
 	//displays page fragment
 	private void displayPage(Page p) {
-		Fragment fragment = null;
+		fragment = null;
+		boolean fragmentFlag = false;
+		currentPage = p;
 		switch(p) {
 			case HOME:
 				fragment = new HomeFragment();
+				fragmentFlag = true;
 				break;
+			case CURRICULUM:
+				fragment = new CurriculumFragment();
+				fragmentFlag = true;
+				break;
+			case LOGOUT:
+				//clear preferences on logout
+				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+				prefs.edit().clear().commit();
+				
+				//start main activity
+				Intent intent = new Intent(Dashboard.this, Main.class);
+				startActivity(intent);
+				this.finish();
+				return;
 		}
 		
-		// Insert fragment to content frame
-		FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment)
-        .addToBackStack(null).commit();
+		if(fragmentFlag) {
+			// Insert fragment to content frame
+			FragmentManager fragmentManager = getSupportFragmentManager();
+			fragmentManager.beginTransaction().replace(R.id.content_frame, fragment)
+	        	.addToBackStack(null).commitAllowingStateLoss();
+		} else {
+			new AlertDialogBuilder.NeutralDialog("Coming Soon", 
+					"This feature is currently unavailable.", Dashboard.this);
+		}
         
         // Set item checked in drawer, then close drawer
         lvDrawer.setItemChecked(p.ordinal(), true);
