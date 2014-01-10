@@ -157,6 +157,7 @@ public class SubjectIntentService extends DownloadDocumentIntentService {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		Editor editor = prefs.edit();
 		editor.putInt(CONNECTION_STATUS, CONNECTION_SUCCESSFUL);
+		editor.commit();
 		
 		//broadcast successful transaction
 		Intent broadcastIntent = new Intent(NOTIFICATION);

@@ -18,6 +18,7 @@
         android:theme="@style/Theme.AppCompat.Light" >
         <service android:name="com.jaselogic.adamsonelearn.LoginIntentService" />
         <service android:name="com.jaselogic.adamsonelearn.SubjectIntentService" />
+        <service android:name="com.jaselogic.adamsonelearn.UpdateIntentService" />
         <activity
             android:name="com.jaselogic.adamsonelearn.Main"
             android:label="@string/app_name" 

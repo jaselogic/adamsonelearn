@@ -1,15 +1,9 @@
 package com.jaselogic.adamsonelearn;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import org.jsoup.select.Elements;
-
-import com.jaselogic.adamsonelearn.DocumentManager.DocumentCookie;
-import com.jaselogic.adamsonelearn.DocumentManager.ResponseReceiver;
 import com.jaselogic.adamsonelearn.SubjectListAdapter.SubjectListItem;
 import com.jaselogic.adamsonelearn.TodayListAdapter.TodayListItem;
 import com.jaselogic.adamsonelearn.UpdatesListAdapter.UpdatesListItem;
@@ -20,7 +14,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteStatement;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -33,16 +26,8 @@ import android.view.ViewGroup;
 
 class HomePageFragment {
 	//Page fragment class
-	public static class UpdatesFragment extends ListFragment implements ResponseReceiver {
-		private final static String SELECTOR_UPDATES_PAGE = "tr";
-		private final static String SELECTOR_SUBJECT = "div > div:nth-of-type(1) span";
-		private final static String SELECTOR_TITLE = "div > div:nth-of-type(2) span";
-		private final static String SELECTOR_BODY = "div > div:nth-of-type(3) span";
-		private final static String SELECTOR_DATE = "div > div:nth-of-type(4)";
-		private final static String SELECTOR_AVATAR = "img[alt=Avatar]";
-		private final static String SELECTOR_TEACHER = "span.teachername";
-		
-		private String cookie;
+	public static class UpdatesFragment extends ListFragment {	
+		//private String cookie;
 		private UpdatesListAdapter adapter;
 		private ArrayList<UpdatesListItem> updateArrayList;
 		
@@ -57,106 +42,39 @@ class HomePageFragment {
 			setListAdapter(adapter);
 			
 			//get original cookie
-			cookie = ((Dashboard)getActivity()).cookie;
+			//cookie = ((Dashboard)getActivity()).cookie;
 			
 			return pageRootView;
 		}
-		
-		private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+				
+		private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				new DocumentManager.DownloadDocumentTask(UpdatesFragment.this, 
-						DocumentManager.PAGE_UPDATES, cookie).execute();
-				
+				populateUpdatesList();
+				broadcastUpdatesReady();
 			}
 		};
+
+		@Override
+		public void onPause() {
+			super.onPause();
+			LocalBroadcastManager.getInstance(getActivity())
+				.unregisterReceiver(mBroadcastReceiver);
+		}
 		
-		
-		//listen to subject list ready event
 		@Override
 		public void onResume() {
 			super.onResume();
 			LocalBroadcastManager.getInstance(getActivity())
-				.registerReceiver(mMessageReceiver, new IntentFilter("subject-list-ready"));
+				.registerReceiver(mBroadcastReceiver, new IntentFilter(SubjectIntentService.NOTIFICATION));
 		}
 		
-		@Override
-		public void onPause() {
-			LocalBroadcastManager.getInstance(getActivity())
-				.unregisterReceiver(mMessageReceiver);
-			super.onPause();
-		}
-
-		@Override
-		public void onResourceReceived(DocumentCookie res) throws IOException {
+		public void populateUpdatesList() {
 			DateFormat formatter = new SimpleDateFormat(
 					"'Date Added : 'MMM dd, yyyy 'at' hh:mm:ss aa");
 			
 			//open database
 			SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
-			//drop table if it exists
-			eLearnDb.execSQL("DROP TABLE IF EXISTS UpdatesTable;");
-			
-			//create the table
-			eLearnDb.execSQL("CREATE TABLE UpdatesTable " +
-					"(SectionId INTEGER, Title TEXT, " +
-					"Body TEXT, DateAdded INTEGER);");
-			
-			//Root node for updates page.
-			Elements updates = res.document.select(SELECTOR_UPDATES_PAGE);
-			Elements teacher = updates.select(SELECTOR_TEACHER);
-			Elements subject = updates.select(SELECTOR_SUBJECT);
-			Elements title = updates.select(SELECTOR_TITLE);
-			Elements body = updates.select(SELECTOR_BODY);
-			Elements dateAdded = updates.select(SELECTOR_DATE);
-			Elements avatarSrc = updates.select(SELECTOR_AVATAR);
-
-			//SQL Statement
-			String sqlUpdates = "INSERT INTO UpdatesTable VALUES (?,?,?,?);";
-			SQLiteStatement stUpdates = eLearnDb.compileStatement(sqlUpdates);
-			
-			//begin SQL transaction
-			eLearnDb.beginTransaction();
-			for(int i = 0; i < subject.size(); i++) {
-				UpdatesListItem updateItem = new UpdatesListItem();
-				updateItem.name = teacher.get(i).text().trim();
-				updateItem.subject = subject.get(i).text().trim();
-				updateItem.title = title.get(i).text().trim();
-				updateItem.body = body.get(i).text().trim();
-				updateItem.dateAdded = dateAdded.get(i).text().trim();
-				
-				int subjCode = Integer.parseInt(
-						updateItem.subject.substring(0, updateItem.subject.indexOf(' '))
-						);
-				
-				Date date = null;
-				
-				try {
-					date = (Date) formatter.parse(updateItem.dateAdded);
-				} catch (ParseException e) {
-					e.printStackTrace();
-				}
-				
-				Log.d("STAHP",
-						date.toString()
-						);
-				String src = avatarSrc.get(i).attr("src");
-				updateItem.avatarSrc = "http://learn.adamson.edu.ph/" + src.substring(3,
-						(src.indexOf('#') > 0 ? src.indexOf('#') : src.length()));
-				
-				//add item to database
-				stUpdates.clearBindings();
-				stUpdates.bindLong(1, subjCode);
-				stUpdates.bindString(2, updateItem.title);
-				stUpdates.bindString(3, updateItem.body);
-				stUpdates.bindLong(4, date.getTime());
-				stUpdates.execute();
-				
-				//updateArrayList.add(updateItem);
-			}
-			//set transaction success, then end transaction
-			eLearnDb.setTransactionSuccessful();
-			eLearnDb.endTransaction();
 			
 			Cursor c = eLearnDb.rawQuery(
 					"SELECT SubjTable.ProfName, UpdatesTable.SectionId, " +
@@ -184,9 +102,6 @@ class HomePageFragment {
 			}
 			
 			adapter.notifyDataSetChanged();
-			
-			//broadcast updates ready
-			broadcastUpdatesReady();
 			
 			//close database
 			eLearnDb.close();
@@ -225,10 +140,14 @@ class HomePageFragment {
 		private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				Log.d("CURRI", "TEST");
 				SQLiteDatabase eLearnDb = getActivity().openOrCreateDatabase("AdUELearn", Context.MODE_PRIVATE, null);
 				displaySubjects(eLearnDb);
 				eLearnDb.close();
+				
+				//start updates intent
+				Intent updatesIntent = new Intent(getActivity(), UpdateIntentService.class);
+				updatesIntent.putExtra(SubjectIntentService.EXTRA_COOKIE, cookie);
+				getActivity().startService(updatesIntent);
 			}
 		};
 
