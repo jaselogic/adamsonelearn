@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -71,7 +72,8 @@ public class Main extends Activity {
 	protected void onPause() {
 		super.onPause();
 		Log.d("PAUSE", "PUSA");
-		unregisterReceiver(mBroadcastReceiver);
+		LocalBroadcastManager.getInstance(getApplicationContext())
+			.unregisterReceiver(mBroadcastReceiver);
 	};
 	
 	@Override
@@ -98,7 +100,8 @@ public class Main extends Activity {
 		}
 		
 		Log.d("PAUSE", "RESUMA");
-		registerReceiver(mBroadcastReceiver, new IntentFilter(LoginIntentService.NOTIFICATION));
+		LocalBroadcastManager.getInstance(getApplicationContext())
+			.registerReceiver(mBroadcastReceiver, new IntentFilter(LoginIntentService.NOTIFICATION));
 	}
 	
 	@Override
