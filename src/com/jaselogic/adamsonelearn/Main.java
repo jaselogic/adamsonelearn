@@ -1,10 +1,5 @@
 package com.jaselogic.adamsonelearn;
 
-import java.io.IOException;
-import org.jsoup.select.Elements;
-
-import com.jaselogic.adamsonelearn.DocumentManager.DocumentCookie;
-
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -14,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -25,8 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class Main extends Activity {
-	private final static String VISIBILITY_STATE = "visibility";
-	
+
 	private Button btnLogin;
 	private EditText txtStudNo;
 	private EditText txtPassword;
@@ -127,7 +120,6 @@ public class Main extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
 				String studNo = txtStudNo.getText().toString().trim();
 				String password = txtPassword.getText().toString();
 						
