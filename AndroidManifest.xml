@@ -19,6 +19,7 @@
         <service android:name="com.jaselogic.adamsonelearn.LoginIntentService" />
         <service android:name="com.jaselogic.adamsonelearn.SubjectIntentService" />
         <service android:name="com.jaselogic.adamsonelearn.UpdateIntentService" />
+        <service android:name="com.jaselogic.adamsonelearn.CurriculumIntentService" />
         <activity
             android:name="com.jaselogic.adamsonelearn.Main"
             android:label="@string/app_name" 
