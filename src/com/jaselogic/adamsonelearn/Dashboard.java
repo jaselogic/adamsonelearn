@@ -123,6 +123,21 @@ public class Dashboard extends ActionBarActivity {
         displayPage();
 	}
 	
+    //ADDS "BACKSTACK" FUNCTIONALITY
+    @Override
+    public void onBackPressed() {
+		switch(currentPage) {
+			case CURRICULUM:
+				ViewPager pager = (ViewPager) findViewById(R.id.curriculum_pager);
+				if(pager.getCurrentItem() == 1) {
+					pager.setCurrentItem(0, true);
+				} else super.onBackPressed();
+				break;
+			default:
+				super.onBackPressed();
+		}
+    }
+	
 	//called via supportInvalidateOptionsMenu
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
