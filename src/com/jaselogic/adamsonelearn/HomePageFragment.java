@@ -51,7 +51,7 @@ class HomePageFragment {
 				Bundle savedInstanceState) {
 			View pageRootView = inflater.inflate(R.layout.fragment_listview, 
 					container, false);
-				
+
 			updateArrayList = new ArrayList<UpdatesListItem>();	
 			adapter = new UpdatesListAdapter(getActivity(), updateArrayList);
 			setListAdapter(adapter);
@@ -67,6 +67,7 @@ class HomePageFragment {
 			public void onReceive(Context context, Intent intent) {
 				new DocumentManager.DownloadDocumentTask(UpdatesFragment.this, 
 						DocumentManager.PAGE_UPDATES, cookie).execute();
+				
 			}
 		};
 		
@@ -183,8 +184,16 @@ class HomePageFragment {
 			
 			adapter.notifyDataSetChanged();
 			
+			//broadcast updates ready
+			broadcastUpdatesReady();
+			
 			//close database
 			eLearnDb.close();
+		}
+		
+		public void broadcastUpdatesReady() {
+			Intent intent = new Intent("updates-list-ready");
+			LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
 		}
 	}
 	
@@ -396,6 +405,7 @@ class HomePageFragment {
 				Bundle savedInstanceState) {
 			ViewGroup pageRootView = (ViewGroup) inflater.inflate(
 					R.layout.fragment_listview, container, false);
+			
 			todayArrayList = new ArrayList<TodayListItem>();
 			adapter = new TodayListAdapter(getActivity(), todayArrayList);
 			setListAdapter(adapter);
@@ -423,7 +433,7 @@ class HomePageFragment {
 		public void onResume() {
 			super.onResume();
 			LocalBroadcastManager.getInstance(getActivity())
-				.registerReceiver(mMessageReceiver, new IntentFilter("subject-list-ready"));
+				.registerReceiver(mMessageReceiver, new IntentFilter("updates-list-ready"));
 		}
 		
 		@Override

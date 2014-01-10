@@ -164,7 +164,7 @@ public class Dashboard extends ActionBarActivity {
     	Fragment fragment = new HomeFragment();
     	FragmentManager fragmentManager = getSupportFragmentManager();
     	fragmentManager.beginTransaction().replace(R.id.content_frame, fragment)
-    		.commit();
+    		.commitAllowingStateLoss();
     }
 	
 	//displays page fragment
@@ -190,7 +190,7 @@ public class Dashboard extends ActionBarActivity {
 			// Insert fragment to content frame
 			FragmentManager fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction().replace(R.id.content_frame, fragment)
-	        	.addToBackStack(null).commit();
+	        	.addToBackStack(null).commitAllowingStateLoss();
 		} else {
 			new AlertDialogBuilder.NeutralDialog("Coming Soon", 
 					"This feature is currently unavailable.", Dashboard.this);

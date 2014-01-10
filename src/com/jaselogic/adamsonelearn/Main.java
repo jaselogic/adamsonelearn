@@ -8,8 +8,10 @@ import com.jaselogic.adamsonelearn.DocumentManager.DocumentCookie;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -26,6 +28,27 @@ public class Main extends Activity implements DocumentManager.ResponseReceiver {
 	private EditText txtPassword;
 	private ProgressBar pb1;
 	
+	private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+		
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			Bundle bundle = intent.getExtras();
+			Log.d("CURRI", bundle.getString(LoginIntentService.EXTRA_STATUS));
+		}
+	};
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		unregisterReceiver(mBroadcastReceiver);
+	};
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		registerReceiver(mBroadcastReceiver, new IntentFilter(LoginIntentService.NOTIFICATION));
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -36,6 +59,10 @@ public class Main extends Activity implements DocumentManager.ResponseReceiver {
 		txtStudNo = (EditText) findViewById(R.id.txt_studno);
 		txtPassword = (EditText) findViewById(R.id.txt_password);
 		pb1 = (ProgressBar) findViewById(R.id.progressBar1);
+		
+		//temp
+		txtStudNo.setText("201013888");
+		txtPassword.setText("288785");
 		
 		btnLogin.setOnClickListener(new OnClickListener() {
 			
@@ -56,7 +83,11 @@ public class Main extends Activity implements DocumentManager.ResponseReceiver {
 					
 					//If internet connection is present
 					if(isNetworkConnected()) {
-						new DocumentManager.DownloadDocumentTask(Main.this, DocumentManager.PAGE_BALINQ, null).execute(studNo, password);
+						Intent intent = new Intent(Main.this, LoginIntentService.class);
+						intent.putExtra(LoginIntentService.EXTRA_STUDNO, studNo);
+						intent.putExtra(LoginIntentService.EXTRA_PASSWORD, password);
+						startService(intent);
+						//new DocumentManager.DownloadDocumentTask(Main.this, DocumentManager.PAGE_BALINQ, null).execute(studNo, password);
 					} else {
 						setViewVisibility(View.VISIBLE);
 						new AlertDialogBuilder.NeutralDialog("Walang net", 
@@ -110,8 +141,7 @@ public class Main extends Activity implements DocumentManager.ResponseReceiver {
 				intent.putExtra("course", studinfo.get(2).text());
 				intent.putExtra("year", studinfo.get(3).text());
 				startActivity(intent);
-				setViewVisibility(View.VISIBLE);
-				txtPassword.setText("");
+				this.finish();
 			} else { //kung hindi nakalogin, mali user pass.
 				new AlertDialogBuilder.NeutralDialog("Mali password", 
 						"Invalid username/password", Main.this);
