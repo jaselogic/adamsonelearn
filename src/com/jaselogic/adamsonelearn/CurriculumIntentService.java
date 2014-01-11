@@ -152,20 +152,15 @@ public class CurriculumIntentService extends DownloadDocumentIntentService {
 			eLearnDb.execSQL("DROP TABLE IF EXISTS ElecTable");
 						
 			//CREATE TABLES
-			eLearnDb.execSQL("CREATE TABLE CurrTable " + 
-						"(Id INTEGER, SubjCode TEXT, SubjName TEXT, " + 
-						"Units INTEGER, Year INTEGER, Semester INTEGER, " +
-						"HasPrereq INTEGER, HasCoreq INTEGER, HasElec INTEGER);");
+			eLearnDb.execSQL("CREATE TABLE CurrTable (Id INTEGER, SubjCode TEXT, SubjName TEXT, " + 
+						"Units INTEGER, Year INTEGER, Semester INTEGER, HasPrereq INTEGER, HasCoreq INTEGER, HasElec INTEGER);");
 			
 			
-			eLearnDb.execSQL("CREATE TABLE PrereqTable " + 
-						"(SubjId INTEGER, PrereqId INTEGER);");
+			eLearnDb.execSQL("CREATE TABLE PrereqTable (SubjId INTEGER, PrereqId INTEGER);");
 			
-			eLearnDb.execSQL("CREATE TABLE CoreqTable " + 
-						"(SubjId INTEGER, CoreqId INTEGER);");
+			eLearnDb.execSQL("CREATE TABLE CoreqTable (SubjId INTEGER, CoreqId INTEGER);");
 			
-			eLearnDb.execSQL("CREATE TABLE ElecTable " + 
-						"(SubjId INTEGER, ElecId INTEGER);");
+			eLearnDb.execSQL("CREATE TABLE ElecTable (SubjId INTEGER, ElecId INTEGER);");
 			
 			//INSERT MULTIPLE ITEMS.
 			String sqlSubj = "INSERT INTO CurrTable VALUES (?,?,?,?,?,?,?,?,?);";
