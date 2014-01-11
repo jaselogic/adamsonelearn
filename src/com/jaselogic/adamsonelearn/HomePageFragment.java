@@ -66,7 +66,7 @@ class HomePageFragment {
 		public void onResume() {
 			super.onResume();
 			LocalBroadcastManager.getInstance(getActivity())
-				.registerReceiver(mBroadcastReceiver, new IntentFilter(SubjectIntentService.NOTIFICATION));
+				.registerReceiver(mBroadcastReceiver, new IntentFilter(UpdateIntentService.NOTIFICATION));
 		}
 		
 		public void populateUpdatesList() {
